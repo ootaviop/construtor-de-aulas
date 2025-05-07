@@ -37,7 +37,6 @@ function escapeHtml(str) {
 +  * Recebe um array de nós AST e, para cada um, invoca o renderer
 +  * específico se existir, ou usa fallback para parágrafos e listas.
 +  */
-// após randomId…
 function renderNodes(nodes) {
     // 1) Se for string simples, devolve direto
     if (typeof nodes === 'string') {
@@ -141,6 +140,47 @@ function renderNodes(nodes) {
       </div>
     </div>`;
   });
+
+      // ── VÍDEO ────────────────────────────────────────────────────────────────────
+  registry.register('video', (node) => {
+    const bodyHtml = renderNodes(node.content);
+    return `
+      <div class="embed-responsive embed-responsive-16by9" style="border: 2px solid var(--cor-primaria);">
+        <div></div>
+      </div>
+        `;
+      });
+
+    // ── REFERÊNCIAS ────────────────────────────────────────────────────────────────────
+    registry.register('referencias', (node) => {
+      const bodyHtml = renderNodes(node.content);
+      return `
+    <div class="d-center referencias" style="flex-direction: column;margin-top: 2rem;">
+    <span class="dica-navegacao">Dica de navegação</span>
+      <div class="btn-referencias" data-toggle="modal" data-target="#referencias">
+        <i class="far fa-file" style="font-size: 2rem;"></i><span>Referências</span>
+      </div>
+    </div>
+      <div class="modal fade" role="dialog" tabindex="-1" id="referencias">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header c-aula-container curso">
+          <h4 class="modal-title">Referências</h4>
+          <button class="close" type="button" aria-label="Close" data-dismiss="modal">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body c-aula-container curso secao1">
+          ${bodyHtml}
+        </div>
+        <div class="modal-footer c-aula-container curso">
+          <button class="btn btn-light" type="button" data-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+      `;
+    });
   
   // ── MODAL ────────────────────────────────────────────────────────────────────
   registry.register('modal', (node) => {
@@ -223,7 +263,6 @@ function renderNodes(nodes) {
                 <div class="citacao-texto">
                     ${bodyHtml}   
                 </div>
-                <div class="separador-medio"></div>
             </div>
     `
   });
@@ -257,7 +296,7 @@ function renderNodes(nodes) {
       <div class="carousel-item${i === 0 ? ' active' : ''}">
         <div class="content">
           <div class="d-center area-util">
-            <div>${contentHtml}</div>
+            <p>${contentHtml}</p>
           </div>
         </div>
       </div>`;

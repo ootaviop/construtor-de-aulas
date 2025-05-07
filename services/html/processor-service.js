@@ -44,6 +44,59 @@ function parseSectionNodes(secHtml) {
     const tag  = el.tagName && el.tagName.toLowerCase();
     const text = $(el).text().trim().toLowerCase();
 
+
+      // ─── Vídeo ──────────────────────────────────────────────────────────────
+      if (tag === 'p' && text === '{{video}}') {
+      // 1) coleta TODO o HTML interno até {{/video}} como uma string
+      let innerHtmlStr = '';
+      i++;
+      while (i < children.length) {
+        const sib   = children[i];
+        const sTag  = sib.tagName && sib.tagName.toLowerCase();
+        const sText = $(sib).text().trim().toLowerCase();
+        if (sTag === 'p' && sText === '{{/video}}') break;
+
+        // acumula o HTML bruto deste nó (para permitir aninhamentos)
+        innerHtmlStr += $.html(sib);
+        i++;
+      }
+
+      // 2) chama recursivamente parseSectionNodes no fragmento coletado
+      const content = parseSectionNodes(innerHtmlStr);
+
+      // 3) insere o nó video com seu conteúdo recursivo
+      nodes.push({ name: 'video', content });
+
+      // 4) pula para próxima iteração, evitando fallback de parágrafo
+      continue;
+    }
+
+     // ─── Referências ──────────────────────────────────────────────────────────────
+     if (tag === 'p' && text === '{{referencias}}') {
+      // 1) coleta TODO o HTML interno até {{/referencias}} como uma string
+      let innerHtmlStr = '';
+      i++;
+      while (i < children.length) {
+        const sib   = children[i];
+        const sTag  = sib.tagName && sib.tagName.toLowerCase();
+        const sText = $(sib).text().trim().toLowerCase();
+        if (sTag === 'p' && sText === '{{/referencias}}') break;
+
+        // acumula o HTML bruto deste nó (para permitir aninhamentos)
+        innerHtmlStr += $.html(sib);
+        i++;
+      }
+
+      // 2) chama recursivamente parseSectionNodes no fragmento coletado
+      const content = parseSectionNodes(innerHtmlStr);
+
+      // 3) insere o nó referencias com seu conteúdo recursivo
+      nodes.push({ name: 'referencias', content });
+
+      // 4) pula para próxima iteração, evitando fallback de parágrafo
+      continue;
+    }
+
     // ─── Citação ──────────────────────────────────────────────────────────────
     if (tag === 'p' && text === '{{citacao}}') {
       // 1) coleta TODO o HTML interno até {{/citacao}} como uma string
@@ -249,7 +302,7 @@ function parseTopicAst(topicHtml) {
     console.warn(`Ignorando sessão ${idx+1} por erro:`, err.message);
   }
   });
-  //console.log(`AST: ${JSON.stringify(ast, null, 2)}`); // Debug
+  console.log(`AST: ${JSON.stringify(ast, null, 2)}`); // Debug
   return ast;
 
 }
