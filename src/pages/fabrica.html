@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fábrica - Construtor de Aulas</title>
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/fabrica.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        /* Ajustes específicos para a visualização de pastas */
+        .folder-tree {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 8px 4px;
+        }
+
+        .folder {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .folder-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .folder-item.active {
+            background-color: rgba(0, 123, 255, 0.1);
+            font-weight: 500;
+        }
+
+        .folder-item i {
+            color: #666;
+            width: 20px;
+        }
+
+        .folder-content {
+            display: flex;
+            flex-direction: column;
+            padding-left: 1.5rem;
+            width: 100%;
+        }
+
+        /* Lista de pastas simplificada */
+        .folder-simple-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .folder-simple-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .folder-simple-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .folder-simple-item i {
+            color: #666;
+            width: 20px;
+        }
+
+        /* Botões de ação */
+        .action-button.download,
+        .action-button.preview {
+            display: none;
+        }
+
+        .file-row.processed .action-button.create {
+            display: none;
+        }
+
+        .file-row.processed .action-button.download,
+        .file-row.processed .action-button.preview {
+            display: inline-flex;
+        }
+
+        /* Loading Animation Styles */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--background-light);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite, pulseScale 2s ease-in-out infinite;
+        }
+
+        .loading-text {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .loading-text .dots {
+            display: inline-flex;
+            gap: 0.2rem;
+        }
+
+        .loading-text .dot {
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: loadingDots 1.4s infinite;
+        }
+
+        .loading-text .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-text .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Estilos para o modal de preview */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            width: 90%;
+            height: 90%;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            flex-grow: 1;
+            overflow: auto;
+            position: relative;
+        }
+
+        .modal-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-modal:hover {
+            color: #000;
+        }
+
+        .topic-selector {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topic-selector label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .topic-selector select {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        /* Estilos para diálogos de seleção */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .select-dialog {
+            width: 400px;
+            max-width: 90%;
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            position: relative;
+            animation: dialogFadeIn 0.2s ease-out;
+        }
+
+        .dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dialog-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-primary, #333);
+        }
+
+        .dialog-subtitle {
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            color: var(--text-secondary, #666);
+        }
+
+        .dialog-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary, #666);
+            padding: 0;
+            margin-left: 10px;
+            transition: color 0.2s;
+        }
+
+        .dialog-close:hover {
+            color: var(--text-primary, #333);
+        }
+
+        .dialog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 8px 0;
+        }
+
+        .dialog-item {
+            width: 100%;
+            text-align: left;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color, #ddd);
+            border-radius: 4px;
+            transition: all 0.2s;
+            background: var(--background-light, #f8f9fa);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .dialog-item:hover {
+            background: var(--background-hover, #e9ecef);
+        }
+
+        .dialog-item.primary {
+            background: var(--primary-light, #f0f8ff);
+            font-weight: 500;
+        }
+
+        .dialog-item.primary:hover {
+            background: var(--primary-hover, #e0f0ff);
+        }
+
+        .dialog-item.disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .dialog-button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background: var(--button-secondary, #6c757d);
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .dialog-button:hover {
+            background: var(--button-secondary-hover, #5a6268);
+        }
+
+        .dialog-button.primary {
+            background: var(--primary, #007bff);
+        }
+
+        .dialog-button.primary:hover {
+            background: var(--primary-hover, #0069d9);
+        }
+
+        @keyframes dialogFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulseScale {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            50% {
+                transform: scale(1.1) rotate(180deg);
+            }
+        }
+
+        @keyframes loadingDots {
+
+            0%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: translateY(-4px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dev-tools-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .dev-tools-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Adicionar estilos para animação dos toasts */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        .toast.hiding {
+            animation: fadeOut 0.3s ease forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="dev-tools-button" id="openDevTools">
+        <i class="fas fa-code"></i>
+        DevTools
+    </button>
+
+    <a href="#" class="nav-button" id="btnVoltar">
+        <i class="fas fa-arrow-left"></i>
+        <span>Voltar</span>
+    </a>
+
+    <div class="container fabrica-container">
+        <aside class="file-explorer">
+            <div class="file-explorer-header">
+                <h2>Explorador de Arquivos</h2>
+                <button class="refresh-button" id="refresh-folders">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Pesquise aqui o documento..." id="search-input">
+            </div>
+
+            <div class="folder-structure">
+                <div class="folder-tree" id="folder-tree">
+                    <div class="loading-container">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">
+                            Carregando arquivos
+                            <div class="dots">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="file-content">
+            <div class="content-header">
+                <h1 id="current-folder-name">Pasta Raiz</h1>
+                <div class="view-options">
+                    <button class="view-button active" title="Visualização em lista">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="view-button" title="Visualização em grade">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="files-table">
+                <div class="table-header">
+                    <div class="th-name">Nome do Arquivo</div>
+                    <div class="th-actions">Ações</div>
+                </div>
+                <div class="table-body" id="file-table-body">
+                </div>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+        </main>
+    </div>
+
+    <div class="preview-modal" id="previewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Preview do Documento</h2>
+                <button class="close-modal" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <iframe id="previewFrame" src="" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        // Estado da aplicação
+        let allFiles = [];
+        let searchQuery = "";
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let currentFolderId = null; // ID da pasta atual
+        let currentFolderName = "Pasta Raiz"; // Nome da pasta atual
+        let folderStructure = []; // Estrutura de pastas
+        let processedFiles = new Map(); // Armazena os HTMLs gerados por arquivo ID
+
+        // Funções para manipulação de arquivos
+        let currentFileContent = null;
+        let currentFileName = null;
+        let currentFileId = null;
+        let tempDirPath = null;
+
+        // Função para criar o elemento de loading
+        function createLoadingElement() {
+            return `
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">
+                        Carregando arquivos
+                        <div class="dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Função para mostrar uma mensagem toast
+        function showToast(message, type = 'success') {
+            // Criar o elemento toast se não existir
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.style.position = 'fixed';
+                toastContainer.style.bottom = '20px';
+                toastContainer.style.right = '20px';
+                toastContainer.style.zIndex = '9999';
+                document.body.appendChild(toastContainer);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.style.padding = '10px 15px';
+            toast.style.margin = '10px';
+            toast.style.borderRadius = '4px';
+            toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+            toast.style.minWidth = '250px';
+            toast.style.animation = 'fadeIn 0.3s, fadeOut 0.3s 3.7s';
+
+            if (type === 'success') {
+                toast.style.backgroundColor = '#4CAF50';
+                toast.style.color = 'white';
+            } else if (type === 'error') {
+                toast.style.backgroundColor = '#F44336';
+                toast.style.color = 'white';
+            } else if (type === 'warning') {
+                toast.style.backgroundColor = '#FF9800';
+                toast.style.color = 'white';
+            } else if (type === 'info') {
+                toast.style.backgroundColor = '#2196F3';
+                toast.style.color = 'white';
+            }
+
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+
+            // Remove o toast após 4 segundos
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    if (toastContainer.contains(toast)) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Ao carregar a página
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Configurar botão DevTools
+            document.getElementById('openDevTools').addEventListener('click', () => {
+                window.electronAPI.openDevTools();
+            });
+
+            // Configura o botão de voltar
+            document.getElementById('btnVoltar').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.electronAPI.navigate('home');
+            });
+
+            try {
+                // Carregar arquivos processados anteriormente (se disponível)
+                try {
+                    const savedProcessedFiles = await window.electronAPI.getProcessedFiles();
+                    if (savedProcessedFiles && Array.isArray(savedProcessedFiles)) {
+                        savedProcessedFiles.forEach(item => {
+                            processedFiles.set(item.id, item.data);
+                        });
+                        console.log(`Carregados ${savedProcessedFiles.length} arquivos processados anteriormente`);
+                    }
+                } catch (e) {
+                    console.log('Nenhum arquivo processado anteriormente encontrado');
+                }
+
+                // 1) Carregar a árvore de pastas
+                await loadFolderTree();
+
+                // 2) Listar arquivos da pasta raiz
+                await loadFilesFromFolder(currentFolderId);
+
+                // 3) Configurar busca
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        searchQuery = e.target.value.toLowerCase();
+                        currentPage = 1;
+                        renderFiles();
+                    });
+                }
+
+                // 4) Configurar botão de atualizar pastas
+                const refreshButton = document.getElementById('refresh-folders');
+                if (refreshButton) {
+                    refreshButton.addEventListener('click', async () => {
+                        // Atualizar estrutura de pastas
+                        await loadFolderTree();
+
+                        // Também atualizar os arquivos da pasta atual
+                        await loadFilesFromFolder(currentFolderId);
+                    });
+                }
+
+                // 5) Configurar listeners de eventos de download
+                document.addEventListener('download-complete', (event) => {
+                    const data = event.detail;
+                    if (data.success) {
+                        showToast('Arquivo baixado com sucesso!', 'success');
+                    }
+                });
+
+                document.addEventListener('download-error', (event) => {
+                    const data = event.detail;
+                    if (!data.success) {
+                        showToast('Erro ao baixar arquivo: ' + data.error, 'error');
+                    }
+                });
+
+                // 6) Configurar modal de preview
+                const closeModalButton = document.getElementById('closeModal');
+                if (closeModalButton) {
+                    closeModalButton.addEventListener('click', () => {
+                        document.getElementById('previewModal').style.display = 'none';
+                    });
+                }
+
+                // 7) Configurar fechamento de modal quando clicar fora
+                window.addEventListener('click', (e) => {
+                    const previewModal = document.getElementById('previewModal');
+                    if (e.target === previewModal) {
+                        previewModal.style.display = 'none';
+                    }
+                });
+
+                // Inicializar alerta
+                createAlertBox();
+            } catch (error) {
+                console.error('Erro ao inicializar a página:', error);
+                showToast('Erro ao inicializar a página: ' + error.message, 'error');
+            }
+        });
+
+        // Função para criar área de alerta se não existir
+        function createAlertBox() {
+            if (!document.getElementById('alert-box')) {
+                const alertBox = document.createElement('div');
+                alertBox.id = 'alert-box';
+                alertBox.className = 'alert';
+                alertBox.style.display = 'none';
+                alertBox.style.position = 'fixed';
+                alertBox.style.top = '20px';
+                alertBox.style.left = '50%';
+                alertBox.style.transform = 'translateX(-50%)';
+                alertBox.style.zIndex = '1000';
+                alertBox.style.padding = '15px';
+                alertBox.style.borderRadius = '5px';
+                document.body.appendChild(alertBox);
+            }
+        }
+
+        // Função para carregar a árvore de pastas
+        async function loadFolderTree() {
+            const folderTree = document.getElementById('folder-tree');
+            if (!folderTree) return;
+
+            folderTree.innerHTML = createLoadingElement();
+
+            try {
+                // Primeiro, tentar com a nova API
+                let rootFolders = [];
+                try {
+                    rootFolders = await window.electronAPI.listarPastas();
+                } catch (error) {
+                    console.warn('Erro ao usar listarPastas, tentando listFolders:', error);
+                    rootFolders = await window.electronAPI.listFolders();
+                }
+
+                // Para cada pasta, carregar suas subpastas
+                for (const folder of rootFolders) {
+                    try {
+                        folder.subFolders = await window.electronAPI.listarPastas(folder.id);
+                    } catch (error) {
+                        console.warn('Erro ao usar listarPastas para subpastas, tentando listFolders:', error);
+                        try {
+                            folder.subFolders = await window.electronAPI.listFolders(folder.id);
+                        } catch (subError) {
+                            console.warn('Não foi possível carregar subpastas:', subError);
+                            folder.subFolders = [];
+                        }
+                    }
+                }
+
+                folderStructure = rootFolders;
+                renderFolderTree(folderStructure);
+            } catch (error) {
+                console.error('Erro ao carregar estrutura de pastas:', error);
+                folderTree.innerHTML = '<div class="error-message">Erro ao carregar pastas.</div>';
+            }
+        }
+
+        // Carrega os arquivos de uma pasta
+        async function loadFilesFromFolder(folderId) {
+            const folderFiles = document.getElementById('file-table-body');
+            if (!folderFiles) return;
+
+            folderFiles.innerHTML = createLoadingElement();
+
+            // Atualiza o ID da pasta atual
+            currentFolderId = folderId;
+
+            // Primeiro tentar com a nova API, depois tentar com a antiga
+            let pastas = [];
+            try {
+                pastas = await window.electronAPI.listarPastas(folderId);
+            } catch (error) {
+                console.warn('Erro ao usar listarPastas, tentando listFolders:', error);
+                try {
+                    pastas = await window.electronAPI.listFolders(folderId);
+                } catch (subError) {
+                    console.error('Não foi possível carregar as pastas:', subError);
+                    pastas = [];
+                }
+            }
+
+            // Mesmo para arquivos
+            let arquivos = [];
+            try {
+                arquivos = await window.electronAPI.listarArquivos(folderId);
+            } catch (error) {
+                console.warn('Erro ao usar listarArquivos, tentando listFiles:', error);
+                try {
+                    arquivos = await window.electronAPI.listFiles(folderId);
+                } catch (subError) {
+                    console.error('Não foi possível carregar os arquivos:', subError);
+                    arquivos = [];
+                }
+            }
+
+            // Formatar os dados para o renderizador
+            allFiles = [
+                ...pastas.map(folder => ({
+                    ...folder,
+                    mimeType: 'application/vnd.google-apps.folder',
+                    isFolder: true
+                })),
+                ...arquivos.map(file => ({
+                    ...file,
+                    isFolder: false
+                }))
+            ];
+
+            // Atualizar a interface
+            renderFiles();
+
+            // Atualizar o nome da pasta atual na interface
+            document.getElementById('current-folder-name').textContent = currentFolderName || 'Pasta Raiz';
+        }
+
+        // Função para renderizar a árvore de pastas
+        function renderFolderTree(folders, parentElement = null) {
+            const container = parentElement || document.getElementById('folder-tree');
+
+            if (!parentElement) {
+                container.innerHTML = ''; // Limpar apenas no nível raiz
+
+                // Adicionar título ao explorador
+                const title = document.createElement('div');
+                title.className = 'folder-title';
+                title.textContent = 'Explorador de Arquivos';
+                title.style.fontWeight = 'bold';
+                title.style.padding = '8px 4px';
+                title.style.borderBottom = '1px solid #ddd';
+                title.style.marginBottom = '8px';
+                container.appendChild(title);
+
+                // Adicionar a pasta raiz como primeiro item
+                const rootFolder = document.createElement('div');
+                rootFolder.className = 'folder-item';
+                rootFolder.innerHTML = `
+                    <i class="fas fa-folder-open"></i>
+                    <span>Pasta Raiz</span>
+                `;
+
+                // Adicionar evento de clique na pasta raiz
+                rootFolder.addEventListener('click', () => {
+                    currentFolderId = null;
+                    currentFolderName = "Pasta Raiz";
+                    document.getElementById('current-folder-name').textContent = "Pasta Raiz";
+                    loadFilesFromFolder(null);
+
+                    // Marcar como ativa
+                    document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('active'));
+                    rootFolder.classList.add('active');
+                });
+
+                container.appendChild(rootFolder);
+            }
+
+            folders.forEach(folder => {
+                // Criar item de pasta no estilo do Windows Explorer
+                const folderItem = document.createElement('div');
+                folderItem.className = 'folder-item';
+                folderItem.innerHTML = `
+                    <i class="fas fa-folder"></i>
+                    <span>${folder.name}</span>
+                `;
+
+                // Adicionar evento de clique
+                folderItem.addEventListener('click', () => {
+                    currentFolderId = folder.id;
+                    currentFolderName = folder.name;
+                    document.getElementById('current-folder-name').textContent = folder.name;
+                    loadFilesFromFolder(folder.id);
+
+                    // Marcar como ativa
+                    document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('active'));
+                    folderItem.classList.add('active');
+                });
+
+                container.appendChild(folderItem);
+
+                // Adicionar subpastas logo abaixo, com indentação
+                if (folder.subFolders && folder.subFolders.length > 0) {
+                    // Criar container de subpastas com linha vertical
+                    const subContainer = document.createElement('div');
+                    subContainer.style.paddingLeft = '16px';
+                    subContainer.style.marginLeft = '10px';
+                    subContainer.style.borderLeft = '1px solid #ddd';
+                    container.appendChild(subContainer);
+
+                    folder.subFolders.forEach(subFolder => {
+                        const subFolderItem = document.createElement('div');
+                        subFolderItem.className = 'folder-item';
+
+                        // Linha horizontal para conectar à linha vertical
+                        const lineStyle = `
+                            position: relative;
+                        `;
+                        subFolderItem.style = lineStyle;
+
+                        subFolderItem.innerHTML = `
+                            <i class="fas fa-folder"></i>
+                            <span>${subFolder.name}</span>
+                        `;
+
+                        subFolderItem.addEventListener('click', () => {
+                            currentFolderId = subFolder.id;
+                            currentFolderName = subFolder.name;
+                            document.getElementById('current-folder-name').textContent = subFolder.name;
+                            loadFilesFromFolder(subFolder.id);
+
+                            // Marcar como ativa
+                            document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('active'));
+                            subFolderItem.classList.add('active');
+                        });
+
+                        subContainer.appendChild(subFolderItem);
+                    });
+                }
+            });
+        }
+
+        // Função para renderizar a lista de arquivos
+        function renderFiles() {
+            const tableBody = document.getElementById('file-table-body');
+            tableBody.innerHTML = '';
+
+            // Filtrar arquivos baseado na busca
+            const filteredFiles = allFiles.filter(file =>
+                file.name.toLowerCase().includes(searchQuery)
+            );
+
+            // Calcular paginação
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedFiles = filteredFiles.slice(startIndex, endIndex);
+
+            // Renderizar arquivos
+            paginatedFiles.forEach(file => {
+                const row = document.createElement('div');
+                row.className = 'file-row';
+
+                // Se o arquivo já foi processado, adicionar classe
+                if (processedFiles.has(file.id)) {
+                    row.classList.add('processed');
+                }
+
+                // Informações do arquivo
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'file-info';
+                fileInfo.innerHTML = `
+                    <i class="fas ${getFileIcon(file.mimeType)}"></i>
+                    <span>${file.name}</span>
+                `;
+
+                // Se for uma pasta, adicionar evento de clique
+                if (file.isFolder) {
+                    fileInfo.addEventListener('click', () => {
+                        currentFolderId = file.id;
+                        currentFolderName = file.name;
+                        document.getElementById('current-folder-name').textContent = file.name;
+                        loadFilesFromFolder(file.id);
+                    });
+                    fileInfo.style.cursor = 'pointer';
+                }
+
+                row.appendChild(fileInfo);
+
+                // Ações do arquivo
+                const fileActions = document.createElement('div');
+                fileActions.className = 'file-actions';
+
+                if (!file.isFolder) {
+                    const actionButtons = document.createElement('div');
+                    actionButtons.className = 'action-buttons';
+
+                    // Criar botões com visibilidade inicial baseada no estado do arquivo
+                    const isProcessed = processedFiles.has(file.id);
+
+                    actionButtons.innerHTML = `
+                        <button class="action-button create" style="${isProcessed ? 'display:none' : ''}">
+                            <i class="fas fa-code"></i>
+                            Criar HTML
+                        </button>
+                        <button class="action-button download" style="${isProcessed ? '' : 'display:none'}">
+                            <i class="fas fa-download"></i>
+                            Baixar
+                        </button>
+                        <button class="action-button preview" style="${isProcessed ? '' : 'display:none'}">
+                            <i class="fas fa-eye"></i>
+                            Preview
+                        </button>
+                    `;
+
+                    // Armazenar o ID do arquivo como atributo data para facilitar acesso
+                    actionButtons.setAttribute('data-file-id', file.id);
+
+                    fileActions.appendChild(actionButtons);
+                }
+
+                row.appendChild(fileActions);
+                tableBody.appendChild(row);
+            });
+
+            // Renderizar paginação
+            renderPagination(filteredFiles.length);
+
+            // Adicionar eventos aos botões após renderização
+            addButtonEventHandlers();
+        }
+
+        // Função para adicionar handlers de eventos aos botões após renderização
+        function addButtonEventHandlers() {
+            // Configurar botões de criar HTML
+            document.querySelectorAll('.action-button.create').forEach(button => {
+                if (!button.hasAttribute('data-handler-added')) {
+                    const actionButtons = button.closest('.action-buttons');
+                    const fileRow = button.closest('.file-row');
+                    const fileId = actionButtons ? actionButtons.getAttribute('data-file-id') : getFileIdFromRow(fileRow);
+
+                    if (fileId) {
+                        button.addEventListener('click', () => createHtmlForFile(fileId, fileRow, button));
+                        button.setAttribute('data-handler-added', 'true');
+                    }
+                }
+            });
+
+            // Configurar botões de preview
+            document.querySelectorAll('.action-button.preview').forEach(button => {
+                if (!button.hasAttribute('data-handler-added')) {
+                    const actionButtons = button.closest('.action-buttons');
+                    const fileRow = button.closest('.file-row');
+                    const fileId = actionButtons ? actionButtons.getAttribute('data-file-id') : getFileIdFromRow(fileRow);
+
+                    if (fileId) {
+                        button.addEventListener('click', () => previewHtmlForFile(fileId));
+                        button.setAttribute('data-handler-added', 'true');
+                    }
+                }
+            });
+
+            // Configurar botões de download
+            document.querySelectorAll('.action-button.download').forEach(button => {
+                if (!button.hasAttribute('data-handler-added')) {
+                    const actionButtons = button.closest('.action-buttons');
+                    const fileRow = button.closest('.file-row');
+                    const fileId = actionButtons ? actionButtons.getAttribute('data-file-id') : getFileIdFromRow(fileRow);
+
+                    if (fileId) {
+                        button.addEventListener('click', () => downloadHtmlForFile(fileId, button));
+                        button.setAttribute('data-handler-added', 'true');
+                    }
+                }
+            });
+        }
+
+        // Função para obter o ID do arquivo a partir da linha
+        function getFileIdFromRow(fileRow) {
+            // Esta é uma implementação simplificada, assumindo que podemos encontrar o fileId
+            // Em uma implementação real, você precisaria armazenar o ID no elemento ou buscar de alguma forma
+            const fileIndex = Array.from(fileRow.parentNode.children).indexOf(fileRow);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const fileData = allFiles.filter(file => file.name.toLowerCase().includes(searchQuery))[startIndex + fileIndex];
+            return fileData ? fileData.id : null;
+        }
+
+        // Função para criar HTML para um arquivo específico
+        async function createHtmlForFile(fileId, fileRow, button) {
+            try {
+                // Mostrar indicador de carregamento no botão
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+                button.disabled = true;
+
+                const file = allFiles.find(f => f.id === fileId);
+                if (!file) {
+                    showToast('Arquivo não encontrado.', 'error');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    return;
+                }
+
+                console.log('Obtendo conteúdo para:', file.name);
+                // ---- PASSO 1: Obter o conteúdo (agora HTML) ----
+                const response = await window.electronAPI.getFileContent(fileId);
+
+                if (response.error) {
+                    console.error('Erro ao obter conteúdo:', response.error);
+                    showToast('Erro ao obter conteúdo: ' + response.error, 'error');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    return;
+                }
+
+                // Verificar se htmlContent existe
+                if (typeof response.htmlContent === 'undefined') {
+                    console.error('Erro: A resposta de getFileContent não contém htmlContent.');
+                    showToast('Erro interno: Formato de resposta inesperado do backend.', 'error');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    return;
+                }
+
+                console.log('Processando documento HTML...');
+                // ---- PASSO 2: Enviar o CONTEÚDO HTML para processamento ----
+                // *** MUDANÇA PRINCIPAL AQUI ***
+                const result = await window.electronAPI.processarDocumento(response.htmlContent); // <- Usar htmlContent
+
+                if (result.error) {
+                    console.error('Erro ao processar documento:', result.error);
+                    showToast('Erro ao processar documento: ' + result.error, 'error');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    return;
+                }
+
+                // Verificar se a resposta do processamento é válida
+                if (!result || !Array.isArray(result.htmls)) {
+                    console.error('Erro: Resposta inválida de processarDocumento:', result);
+                    showToast('Erro interno: Resposta inesperada do processador.', 'error');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    return;
+                }
+
+
+                // Armazenar os HTMLs e títulos gerados
+                processedFiles.set(fileId, {
+                    fileName: file.name,
+                    htmls: result.htmls,
+                    titles: result.titles || result.htmls.map((_, i) => `Tópico ${i + 1}`), // Fallback para compatibilidade
+                    timestamp: new Date().toISOString()
+                });
+
+                // Salvar arquivo processado para uso futuro
+                try {
+                    await window.electronAPI.saveProcessedFile(fileId, {
+                        fileName: file.name,
+                        htmls: result.htmls,
+                        titles: result.titles || result.htmls.map((_, i) => `Tópico ${i + 1}`), // Mesmo fallback
+                        timestamp: new Date().toISOString()
+                    });
+                } catch (e) {
+                    console.warn('Não foi possível salvar estado do arquivo processado:', e);
+                }
+
+                // Atualizar a interface
+                fileRow.classList.add('processed');
+
+                // Mostrar botões de download e preview
+                const actionButtons = fileRow.querySelector('.action-buttons');
+                if (actionButtons) {
+                    const downloadBtn = actionButtons.querySelector('.download');
+                    const previewBtn = actionButtons.querySelector('.preview');
+
+                    if (downloadBtn) downloadBtn.style.display = 'inline-flex';
+                    if (previewBtn) previewBtn.style.display = 'inline-flex';
+                    button.style.display = 'none';
+                }
+
+                // Adicionar handlers aos novos botões visíveis
+                addButtonEventHandlers();
+
+                showToast(`Processamento concluído! ${result.htmls.length} tópico(s) gerado(s).`, 'success');
+
+            } catch (error) {
+                console.error('Erro durante processamento:', error);
+                showToast('Erro durante processamento: ' + error.message, 'error');
+                // Restaurar botão em caso de erro geral
+                if (button) {
+                    button.innerHTML = '<i class="fas fa-code"></i> Criar HTML';
+                    button.disabled = false;
+                }
+            }
+        }
+
+        // Função para sanitizar nomes de arquivo
+        function sanitizeFileName(title, index) {
+            if (!title) return `topico_${index + 1}`;
+
+            // Abordagem melhorada para normalização Unicode
+            try {
+                // Normalizar e remover acentos (forma de decomposição canônica NFD)
+                let normalized = title.normalize('NFD');
+
+                // Remover caracteres de combinação diacríticos (acentos, cedilhas, etc.)
+                normalized = normalized.replace(/[\u0300-\u036f]/g, '');
+
+                // Remover outros caracteres Unicode que podem causar problemas
+                normalized = normalized.replace(/[\u00A0-\u9999]/g, match => {
+                    // Mapear caracteres comuns para suas formas ASCII
+                    const charMap = {
+                        'æ': 'ae', 'Æ': 'AE', 'œ': 'oe', 'Œ': 'OE',
+                        'ß': 'ss', 'ø': 'o', 'Ø': 'O', 'å': 'a', 'Å': 'A',
+                        'đ': 'd', 'Đ': 'D', 'þ': 'th', 'Þ': 'Th',
+                        'ð': 'dh', 'Ð': 'Dh', 'ł': 'l', 'Ł': 'L',
+                        '₽': 'RUB', '€': 'EUR', '£': 'GBP', '¥': 'JPY', '₩': 'KRW',
+                        '©': '(c)', '®': '(r)', '™': '(tm)'
+                    };
+
+                    return charMap[match] || '_';
+                });
+
+                // Remover caracteres inválidos em sistemas de arquivos
+                let sanitized = normalized
+                    .trim()
+                    .replace(/[\/\\:*?"<>|#%&{}+\s]/g, '_') // Caracteres inválidos e espaços
+                    .replace(/_{2,}/g, '_')                 // Múltiplos underscores para um único
+                    .replace(/^[._]+|[._]+$/g, '')          // Remover pontos/underscores no início/fim
+                    .substring(0, 80);                       // Limitar tamanho
+
+                // Garantir que o nome não comece com um número (alguns sistemas podem ter problemas)
+                if (/^\d/.test(sanitized)) {
+                    sanitized = `t_${sanitized}`;
+                }
+
+                // Se o nome ficar muito curto ou vazio após sanitização
+                if (sanitized.length < 3) {
+                    return `topico_${index + 1}`;
+                }
+
+                // Adicionar índice ao final para garantir unicidade
+                return `${sanitized}_${index + 1}`;
+            } catch (error) {
+                console.warn('Erro ao sanitizar nome de arquivo:', error);
+                return `topico_${index + 1}`;
+            }
+        }
+
+        // Função para baixar HTML para um arquivo específico
+        async function downloadHtmlForFile(fileId, button) {
+            // Evitar processamento múltiplo se já houver um overlay aberto
+            if (document.querySelector('.modal-overlay')) return;
+
+            try {
+                if (!processedFiles.has(fileId)) {
+                    showToast('Este arquivo ainda não foi processado.', 'warning');
+                    return;
+                }
+
+                // Mostrar indicador de carregamento
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Baixando...';
+                button.disabled = true;
+
+                const fileData = processedFiles.get(fileId);
+                const htmlsContent = fileData.htmls;
+                const titles = fileData.titles || htmlsContent.map((_, i) => `Tópico ${i + 1}`); // Fallback
+                const baseFileName = fileData.fileName.replace(/\.[^/.]+$/, ""); // Remove extensão
+
+                // Se houver múltiplos HTMLs, oferecemos download individual de cada um
+                if (htmlsContent.length > 1) {
+                    // Criar overlay usando a função centralizada
+                    const overlay = createModalOverlay();
+
+                    // Criamos um menu de seleção para escolher qual tópico baixar
+                    const selectDialog = document.createElement('div');
+                    selectDialog.className = 'select-dialog';
+
+                    // Criar cabeçalho do diálogo
+                    const titleHeader = document.createElement('div');
+                    titleHeader.className = 'dialog-header';
+
+                    const titleText = document.createElement('h3');
+                    titleText.className = 'dialog-title';
+                    titleText.textContent = 'Selecione um tópico para download';
+
+                    const closeIcon = document.createElement('button');
+                    closeIcon.className = 'dialog-close';
+                    closeIcon.innerHTML = '&times;';
+                    closeIcon.setAttribute('aria-label', 'Fechar');
+
+                    titleHeader.appendChild(titleText);
+                    titleHeader.appendChild(closeIcon);
+                    selectDialog.appendChild(titleHeader);
+
+                    // Subtítulo - nome do documento
+                    const subtitle = document.createElement('p');
+                    subtitle.className = 'dialog-subtitle';
+                    subtitle.textContent = `Documento: ${fileData.fileName}`;
+                    selectDialog.appendChild(subtitle);
+
+                    // Lista de tópicos
+                    const list = document.createElement('div');
+                    list.className = 'dialog-list';
+
+                    // Opção para baixar todos os tópicos
+                    const allOption = document.createElement('button');
+                    allOption.className = 'dialog-item primary';
+                    allOption.textContent = 'Baixar todos os tópicos';
+
+                    allOption.addEventListener('click', () => {
+                        // Desabilitar o botão após o clique para evitar múltiplos cliques
+                        allOption.disabled = true;
+                        allOption.classList.add('disabled');
+
+                        removeExistingOverlays();
+                        // Utilizar a nova função para baixar todos os tópicos em um ZIP
+                        downloadMultipleTopicsAsZip(htmlsContent, titles, baseFileName);
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    });
+                    list.appendChild(allOption);
+
+                    // Opções para baixar cada tópico individualmente
+                    htmlsContent.forEach((html, index) => {
+                        const option = document.createElement('button');
+                        option.className = 'dialog-item';
+                        option.textContent = titles[index] || `Tópico ${index + 1}`;
+
+                        option.addEventListener('click', () => {
+                            // Desabilitar o botão após o clique para evitar múltiplos cliques
+                            option.disabled = true;
+                            option.classList.add('disabled');
+
+                            removeExistingOverlays();
+                            // Usar o título sanitizado para o nome do arquivo
+                            const fileName = `${baseFileName}_${sanitizeFileName(titles[index], index)}.html`;
+                            downloadSingleHTML(html, fileName);
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                        });
+                        list.appendChild(option);
+                    });
+
+                    selectDialog.appendChild(list);
+
+                    // Botão fechar
+                    const closeBtn = document.createElement('button');
+                    closeBtn.className = 'dialog-button';
+                    closeBtn.textContent = 'Cancelar';
+
+                    closeBtn.addEventListener('click', () => {
+                        removeExistingOverlays();
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    });
+
+                    selectDialog.appendChild(closeBtn);
+
+                    // Também fechar ao clicar no ícone X
+                    closeIcon.addEventListener('click', () => {
+                        removeExistingOverlays();
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    });
+
+                    // Fechar ao clicar fora do diálogo
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) {
+                            removeExistingOverlays();
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                        }
+                    });
+
+                    overlay.appendChild(selectDialog);
+                    document.body.appendChild(overlay);
+                } else {
+                    // Se só tem um HTML, baixamos diretamente
+                    const fileName = `${baseFileName}_${sanitizeFileName(titles[0], 0)}.html`;
+                    downloadSingleHTML(htmlsContent[0], fileName);
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+
+            } catch (error) {
+                console.error('Erro ao baixar HTML:', error);
+                showToast('Erro ao baixar HTML: ' + error.message, 'error');
+
+                // Restaurar botão
+                if (button) {
+                    button.innerHTML = '<i class="fas fa-download"></i> Baixar';
+                    button.disabled = false;
+                }
+            }
+        }
+
+        // Função para baixar um único HTML
+        function downloadSingleHTML(htmlContent, fileName) {
+            // Criar um blob com o conteúdo HTML
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' }); // Especificar charset
+            const url = URL.createObjectURL(blob);
+
+            // Criar link de download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+
+            // Limpar
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+
+            showToast('Download iniciado: ' + fileName, 'success');
+        }
+
+        // Função para preview de HTML para um arquivo específico
+        function previewHtmlForFile(fileId) {
+            // Evitar processamento múltiplo se já houver um overlay aberto
+            if (document.querySelector('.modal-overlay')) return;
+
+            if (!processedFiles.has(fileId)) {
+                showToast('Este arquivo ainda não foi processado.', 'warning');
+                return;
+            }
+
+            const fileData = processedFiles.get(fileId);
+            const htmls = fileData.htmls;
+            const titles = fileData.titles || htmls.map((_, i) => `Tópico ${i + 1}`); // Fallback
+
+            // Se tiver múltiplos HTMLs, mostrar seletor
+            if (htmls.length > 1) {
+                // Criar overlay usando a função centralizada
+                const overlay = createModalOverlay();
+
+                // Criamos um menu de seleção para escolher qual tópico visualizar
+                const selectDialog = document.createElement('div');
+                selectDialog.className = 'select-dialog';
+
+                // Criar cabeçalho do diálogo
+                const titleHeader = document.createElement('div');
+                titleHeader.className = 'dialog-header';
+
+                const titleText = document.createElement('h3');
+                titleText.className = 'dialog-title';
+                titleText.textContent = 'Selecione um tópico para visualizar';
+
+                const closeIcon = document.createElement('button');
+                closeIcon.className = 'dialog-close';
+                closeIcon.innerHTML = '&times;';
+                closeIcon.setAttribute('aria-label', 'Fechar');
+
+                titleHeader.appendChild(titleText);
+                titleHeader.appendChild(closeIcon);
+                selectDialog.appendChild(titleHeader);
+
+                // Subtítulo - nome do documento
+                const subtitle = document.createElement('p');
+                subtitle.className = 'dialog-subtitle';
+                subtitle.textContent = `Documento: ${fileData.fileName}`;
+                selectDialog.appendChild(subtitle);
+
+                // Lista de tópicos
+                const list = document.createElement('div');
+                list.className = 'dialog-list';
+
+                htmls.forEach((html, index) => {
+                    const option = document.createElement('button');
+                    option.className = 'dialog-item';
+                    // Usar o título real do tópico
+                    option.textContent = titles[index] || `Tópico ${index + 1}`;
+
+                    option.addEventListener('click', () => {
+                        // Desabilitar o botão após o clique para evitar múltiplos cliques
+                        option.disabled = true;
+                        option.classList.add('disabled');
+
+                        // Remover overlay e abrir preview
+                        removeExistingOverlays();
+                        openPreviewInNewWindow(html, `${fileData.fileName} - ${titles[index]}`);
+                    });
+
+                    list.appendChild(option);
+                });
+
+                selectDialog.appendChild(list);
+
+                // Botão fechar
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'dialog-button';
+                closeBtn.textContent = 'Cancelar';
+
+                closeBtn.addEventListener('click', () => {
+                    removeExistingOverlays();
+                });
+
+                selectDialog.appendChild(closeBtn);
+
+                // Também fechar ao clicar no ícone X
+                closeIcon.addEventListener('click', () => {
+                    removeExistingOverlays();
+                });
+
+                // Fechar ao clicar fora do diálogo
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        removeExistingOverlays();
+                    }
+                });
+
+                overlay.appendChild(selectDialog);
+                document.body.appendChild(overlay);
+            } else {
+                // Se só tem um HTML, abrimos diretamente
+                const title = titles[0] || fileData.fileName;
+                openPreviewInNewWindow(htmls[0], title);
+            }
+        }
+
+        // Função para abrir preview em nova janela
+        function openPreviewInNewWindow(htmlContent, title) {
+            // Solicitar ao Electron para abrir uma nova janela
+            try {
+                // Verificar se a API existe
+                if (window.electronAPI && window.electronAPI.openPreviewWindow) {
+                    window.electronAPI.openPreviewWindow(htmlContent, title);
+                } else {
+                    // Fallback para abrir em nova aba do navegador
+                    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' }); // Especificar charset
+                    const url = URL.createObjectURL(blob);
+                    const newWindow = window.open(url, '_blank');
+
+                    if (!newWindow) {
+                        showToast('Seu navegador bloqueou a abertura da janela. Verifique as configurações de pop-up.', 'warning');
+                    }
+
+                    // Limpar URL após abertura
+                    setTimeout(() => {
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Erro ao abrir preview:', error);
+                showToast('Erro ao abrir preview: ' + error.message, 'error');
+            }
+        }
+
+        // Função para obter o ícone correto baseado no tipo de arquivo
+        function getFileIcon(mimeType) {
+            if (mimeType.includes('folder')) return 'fa-folder';
+            if (mimeType.includes('document')) return 'fa-file-word';
+            if (mimeType.includes('pdf')) return 'fa-file-pdf';
+            if (mimeType.includes('image')) return 'fa-file-image';
+            if (mimeType.includes('audio')) return 'fa-file-audio';
+            if (mimeType.includes('video')) return 'fa-file-video';
+            return 'fa-file';
+        }
+
+        // Função para renderizar a paginação
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = i === currentPage ? 'active' : '';
+                button.addEventListener('click', () => {
+                    currentPage = i;
+                    renderFiles();
+                });
+                pagination.appendChild(button);
+            }
+        }
+
+        // Funções utilitárias para gerenciamento de modais e overlays
+        function removeExistingOverlays() {
+            // Remover qualquer overlay existente para evitar duplicações
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                document.body.removeChild(overlay);
+            });
+        }
+
+        function createModalOverlay() {
+            // Remover overlays existentes primeiro
+            removeExistingOverlays();
+
+            // Criar novo overlay com a classe de estilo definida
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay dialog-overlay';
+
+            return overlay;
+        }
+
+        // Função para baixar múltiplos HTMLs em um arquivo ZIP
+        async function downloadMultipleTopicsAsZip(htmlsContent, titles, baseFileName) {
+            try {
+                // Verificar se a API JSZip está disponível
+                if (typeof JSZip !== 'undefined') {
+                    // Criar instância do JSZip
+                    const zip = new JSZip();
+
+                    // Adicionar os arquivos HTML ao ZIP
+                    htmlsContent.forEach((html, index) => {
+                        const title = titles[index] || `Tópico ${index + 1}`;
+                        const fileName = `${sanitizeFileName(title, index)}.html`;
+                        zip.file(fileName, html);
+                    });
+
+                    // Gerar o arquivo ZIP
+                    const zipContent = await zip.generateAsync({ type: 'blob' });
+
+                    // Criar link para download
+                    const url = URL.createObjectURL(zipContent);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${baseFileName}_todos_topicos.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // Limpar
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+
+                    showToast('Download iniciado: todos os tópicos', 'success');
+                } else {
+                    // Fallback se JSZip não estiver disponível: baixar apenas o primeiro tópico
+                    showToast('Biblioteca para compactação não disponível. Baixando apenas o primeiro tópico.', 'warning');
+                    downloadSingleHTML(htmlsContent[0], `${baseFileName}_${sanitizeFileName(titles[0], 0)}.html`);
+                }
+            } catch (error) {
+                console.error('Erro ao criar arquivo ZIP:', error);
+                showToast('Erro ao criar arquivo ZIP: ' + error.message, 'error');
+
+                // Fallback: baixar apenas o primeiro tópico
+                downloadSingleHTML(htmlsContent[0], `${baseFileName}_${sanitizeFileName(titles[0], 0)}.html`);
+            }
+        }
+    </script>
+</body>
+
+</html>

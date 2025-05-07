@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identidades e Componentes - Construtor de Aulas</title>
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/identidades.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+
+
+        <div class="split-layout split-layout-2">
+            <!-- Seção Identidades -->
+            <div class="section section-identidades fade-in">
+                <div class="section-content">
+                    <i class="fas fa-fingerprint icon-large"></i>
+                    <h2>Identidades</h2>
+                    <p>Gerencie as identidades do sistema</p>
+                    <div class="button-group">
+                        <a href="criar-identidade.html" class="button button-light">
+                            <span>Criar Identidade</span>
+                            <i class="fas fa-plus"></i>
+                        </a>
+                        <a href="listar-identidades.html" class="button button-outline-light">
+                            <span>Listar Todas</span>
+                            <i class="fas fa-list"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção Componentes -->
+            <div class="section section-componentes fade-in">
+                <div class="section-content">
+                    <i class="fas fa-cube icon-large"></i>
+                    <h2>Componentes</h2>
+                    <p>Gerencie os componentes do sistema</p>
+                    <div class="button-group">
+                        <a href="#" class="button button-light">
+                            <span>Acessar Catálogo</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão Voltar -->
+        <a href="#" class="nav-button" id="btnVoltar">
+            <i class="fas fa-arrow-left"></i>
+            <span>Voltar</span>
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configurar botão de voltar
+            document.getElementById('btnVoltar').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.electronAPI.navigate('home');
+            });
+        });
+    </script>
+</body>
+
+</html>

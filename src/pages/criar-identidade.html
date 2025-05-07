@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Identidade - Construtor de Aulas</title>
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/identidades.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body class="criar-identidade-page">
+    <div class="container">
+        <header class="page-header">
+            <h1>CRIAÇÃO DE IDENTIDADES</h1>
+        </header>
+
+        <div class="create-identity-form">
+            <div class="section-content text-center">
+                <i class="fas fa-fingerprint icon-large"></i>
+                <h2>Nova Identidade</h2>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="identityName">Nome</label>
+                    <input type="text" id="identityName" class="form-control"
+                        placeholder="Insira aqui o nome da identidade">
+                </div>
+                <div class="form-group">
+                    <label for="identityId">ID</label>
+                    <input type="text" id="identityId" class="form-control" value="#001" disabled>
+                </div>
+            </div>
+
+            <div class="components-selector">
+                <div class="components-tabs">
+                    <button class="tab-button active" data-component="carrossel">carrossel</button>
+                    <button class="tab-button" data-component="sanfona">sanfona</button>
+                    <button class="tab-button" data-component="card">card</button>
+                    <button class="tab-button" data-component="flip-card">flip card</button>
+                    <button class="tab-button" data-component="modal">modal</button>
+                    <button class="tab-button" data-component="tabs">tabs</button>
+                </div>
+
+                <div class="component-content">
+                    <div class="component-versions">
+                        <button class="version-button">versão 1</button>
+                        <button class="version-button">versão 2</button>
+                        <button class="version-button">versão 3</button>
+                        <button class="select-version-button">ESCOLHER</button>
+                    </div>
+
+                    <div class="component-preview">
+                        <div class="preview-content">
+                            <span class="preview-label">PREVIEW</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="action-button create">
+                    <i class="fas fa-plus"></i>
+                    <span>CRIAR IDENTIDADE</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Botão Voltar -->
+        <a href="#" class="nav-button" id="btnVoltar">
+            <i class="fas fa-arrow-left"></i>
+            <span>Voltar</span>
+        </a>
+    </div>
+
+    <script>
+        // Gerar ID automaticamente
+        window.addEventListener('DOMContentLoaded', () => {
+            const randomId = '#' + Math.floor(Math.random() * 900 + 100);
+            document.getElementById('identityId').value = randomId;
+
+            // Manipulação das abas de componentes
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    // Aqui iríamos carregar as versões do componente selecionado
+                });
+            });
+
+            // Configurar botão de voltar
+            document.getElementById('btnVoltar').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.electronAPI.navigate('identidades-componentes');
+            });
+        });
+    </script>
+</body>
+
+</html>

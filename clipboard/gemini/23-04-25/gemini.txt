@@ -1,0 +1,971 @@
+| Legenda: 
+    -> | Pares de '```' serão usados para conter código HTML/CSS/JS
+
+    -> | Pares de '--------------#---------------' serão usados para delimitar respostas, isso é, dentro de um par desses elementos será respondida apenas um bullet ou temática por vez.
+
+    -> | *#-- --#* denotam um título importante, ou uma seção da minha resposta. 
+    -> | *-- --* denotam um subtítulo importante.
+
+    -> | Para cada tag que eu escrever os detalhes, usarei a notação: '"""[TAG]"""' para abertura e '"""' para fechamento
+
+    a) Código HTML exato correspondente à tag. Para facilitar vou colocar um bloco para a estrutura do docx e a correspondência html.
+    b) O que pode haver dentro da tag.
+    c) Dentro de quais outras tags essa tag pode aparecer.
+    d) Recursos externos: como tratar? Ex: O que fazer com o 'src' da estrutura da tag IMAGEM.
+    e) Comentários adicionais igualmente importantes para o entendimento completo daquele componente. 
+
+*#-- Respondendo às suas perguntas *#--
+--------------#---------------
+Delimitadores: Eu sei que meu script já está inserindo as tags usando '[' e ']', porém eu gostei muito da ideia de usar tags como:
+```
+{{secao}}
+{{/secao}}
+```
+Eu achei muito eficaz! Por mim, poderíamos propor essa mudança logo de cara.
+--------------#---------------
+*-- 4. Detalhes dos Componentes (INÍCIO) --*
+
+"""[NEGRITO]"""
+a) 
+
+DOCX: 
+```
+[NEGRITO]CONTEUDO[/NEGRITO]
+```
+
+HTML: 
+```
+<strong class="negrito">{{CONTEUDO}}</strong>
+```
+
+b) Apenas texto, [TOOLTIP] e [MODAL_LINK]
+
+c) Essa tag pode aparecer em qualquer lugar onde houver texto, com exceção do conteúdo das tags [TITULO_TOPICO], [TITULO_AULA], [ANTERIOR] e [PROXIMO], uma vez que, esses elementos são mais 'engessados' e não contam com estilização adicional como negrito.
+
+d) Não aplicável.
+
+e) Essa tag é bastante simples. Serve apenas para deixar o texto envolvido com ela em negrito para que haja um destaque maior.
+
+"""
+
+
+
+"""[ITALICO]"""
+a) 
+
+DOCX: 
+```
+[ITALICO]CONTEUDO[/ITALICO]
+```
+
+HTML: 
+```
+<i class="italico">{{CONTEUDO}}</i>
+```
+
+b) Apenas texto, [TOOLTIP] e [MODAL_LINK]
+
+c) Essa tag pode aparecer em qualquer lugar onde houver texto, com exceção do conteúdo das tags [TITULO_TOPICO], [TITULO_AULA], [ANTERIOR] e [PROXIMO], uma vez que, esses elementos são mais 'engessados' e não contam com estilização adicional como itálico.
+
+d) Não aplicável.
+
+e) Essa tag é bastante simples. Serve apenas para deixar o texto envolvido com ela em italico para que haja um destaque maior.
+"""
+
+
+
+
+
+
+"""[LISTA_NUMERADA]"""
+a) 
+
+DOCX:
+```
+[LISTA_NUMERADA]
+    [ITEM_LISTA_NUMERADA]CONTEUDO[/ITEM_LISTA_NUMERADA]
+[/LISTA_NUMERADA]
+```
+
+HTML:
+```
+<div>
+    <ul class="lista-numero">
+        <li>{{CONTEUDO}}</li>
+    </ul>
+</div>
+```
+
+b) Podem haver as tags: [NEGRITO], [ITALICO], [LINK], [DOWNLOAD], [TOOLTIP] e [MODAL_LINK]
+
+c) [CITACAO], [SECAO], [ITEM_CARROSSEL], [ITEM_CARROSSEL_IMG], [MODAL]<->[CONTEUDO_MODAL], [DESTAQUE], [ITEM_SANFONA]->[CONTEUDO];
+
+d) Não aplicável.
+
+e) Cada [ITEM_LISTA_NUMERADA] é representado por um li dentro da ul.lista-numero. O número de 'li's depende de quantos pares '[ITEM_LISTA_NUMERADA]' o código do parse vai encontrar no conteúdo extraído do arquivo .docx.
+
+"""
+
+
+
+
+
+
+"""[LISTA_MARCADORES]"""
+a) 
+
+DOCX:
+```
+[LISTA_MARCADORES]
+    [ITEM_LISTA_MARCADORES]CONTEUDO[/ITEM_LISTA_MARCADORES]
+[/LISTA_MARCADORES]
+```
+
+
+HTML:
+```
+<div>
+    <ul class="lista-check">
+        <li>{{CONTEUDO}}</li>
+    </ul>
+</div>
+```
+
+b) Podem haver as tags: [NEGRITO], [ITALICO], [LINK], [DOWNLOAD], [TOOLTIP] e [MODAL_LINK]
+
+c) [CITACAO], [SECAO], [ITEM_CARROSSEL], [ITEM_CARROSSEL_IMG], [MODAL]<->[CONTEUDO_MODAL], [DESTAQUE], [ITEM_SANFONA]->[CONTEUDO];
+
+d) Não aplicável.
+
+e) Cada [ITEM_LISTA_MARCADORES] é representado por um li dentro da ul.lista-numero. O número de 'li's depende de quantos pares '[ITEM_LISTA_MARCADORES]' o código do parse vai encontrar no conteúdo extraído do arquivo .docx.
+
+"""
+
+
+
+
+
+"""[CARROSSEL]"""
+a) 
+
+DOCX:
+```
+[CARROSSEL]
+    [ITEM_CARROSSEL]CONTEUDO_SLIDE_1[/ITEM_CARROSSEL]
+    [ITEM_CARROSSEL]CONTEUDO_SLIDE_2[/ITEM_CARROSSEL]
+    [ITEM_CARROSSEL]CONTEUDO_SLIDE_3[/ITEM_CARROSSEL]
+    [ITEM_CARROSSEL]CONTEUDO_SLIDE_4[/ITEM_CARROSSEL]
+[/CARROSSEL]
+```
+
+HTML:
+```
+<div>
+    <p class="dica-navegacao">Use as setas para navegar</p>
+</div>
+<div>
+    <div class="carousel slide" data-ride="carousel" data-interval="false"
+        id="carousel-1">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="content">
+                    <div class="d-center area-util">
+                        <div>
+                            <p>{{CONTEUDO_SLIDE_1}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="content">
+                    <div class="d-center area-util">
+                        <div>
+                            <p>{{CONTEUDO_SLIDE_2}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="content">
+                    <div class="d-center area-util">
+                        <div>
+                            <p>{{CONTEUDO_SLIDE_3}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="content">
+                    <div class="d-center area-util">
+                        <div>
+                            <p>{{CONTEUDO_SLIDE_4}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+        <a class="carousel-control-prev" href="#carousel-1" role="button" data-slide="prev"><span
+                    class="carousel-control-prev-icon"></span><span
+                    class="sr-only">Previous</span></a><a class="carousel-control-next"
+                href="#carousel-1" role="button" data-slide="next"><span
+                    class="carousel-control-next-icon"></span><span class="sr-only">Next</span></a>
+        </div>
+        <ol class="carousel-indicators">
+            <li data-target="#carousel-1" data-slide-to="0" class="active"></li>
+            <li data-target="#carousel-1" data-slide-to="1" class=""></li>
+            <li data-target="#carousel-1" data-slide-to="2" class=""></li>
+            <li data-target="#carousel-1" data-slide-to="3" class=""></li>
+        </ol>
+    </div>
+</div>
+```
+
+
+b) [CARROSSEL] contém apenas [ITEM_CARROSSEL]. [ITEM_CARROSSEL] pode conter: texto, [NEGRITO], [ITALICO], [LINK], [DOWNLOAD], [LISTA_NUMERADA]<->[ITEM_LISTA_NUMERADA], [LISTA_MARCADORES]<->[ITEM_LISTA_MARCADORES], [TOOLTIP] e [MODAL_LINK]
+
+c) [SECAO], [CITACAO], [MODAL]<->[CONTEUDO_MODAL], [DESTAQUE], [SANFONA]<->[ITEM_SANFONA]<->[CONTEUDO]
+
+d) Não se aplica
+
+e) O número de itens dentro de '.carousel-inner' depende de quantos pares '[ITEM_CARROSSEL]' o código do parse vai encontrar dentro do par de tags '[CARROSSEL]' pai desses elementos '[ITEM_CARROSSEL]' no conteúdo extraído do arquivo .docx; vale ressaltar que os atributos 'id' e 'href' estão fixos no exemplo da letra a) mas devem ser gerados dinamicamente pelo código responsável pelo parse. A lógica de inserção da classe active também precisa ser feita pelo código do parse. Por padrão, adicionamos a classe 'active' no primeiro elemento. Perceba que dentro de cada item do carrossel eu coloquei o texto correspondente ao que estava no exemplo do docx ('CONTEUDO_SLIDE_X') entre um par de tags <p>, porém é preciso levar em conta que se o usuário colocar o conteúdo entre um par de outra tag, como por exemplo [LISTA_NUMERADA]<->[ITEM_LISTA_NUMERADA], ao invés da tag <p>, o código deve substituir pelo html referente à tag indicada no documento. Eu coloquei o par de tags <p> para demonstrar que se não huver nenhuma outra tag, o código deve tratar o conteúdo como se fosse um parágrafo.
+
+"""
+
+
+
+
+"""[CARROSSEL_IMG]"""
+a)
+
+```
+[CARROSSEL_IMG]
+    [ITEM_CARROSSEL_IMG]CONTEUDO_SLIDE_1[/ITEM_CARROSSEL_IMG]
+    [ITEM_CARROSSEL_IMG]CONTEUDO_SLIDE_2[/ITEM_CARROSSEL_IMG]
+    [ITEM_CARROSSEL_IMG]CONTEUDO_SLIDE_3[/ITEM_CARROSSEL_IMG]
+    [ITEM_CARROSSEL_IMG]CONTEUDO_SLIDE_4[/ITEM_CARROSSEL_IMG]
+[/CARROSSEL_IMG]
+```
+
+HTML:
+```
+<div>
+    <p class="dica-navegacao">Use as setas para navegar</p>
+</div>
+<div>
+    <div class="carousel slide carousel-img" data-ride="carousel" data-interval="false"
+        id="carousel-1">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="content">
+                    <div class="d-center area-util">
+                        <img class="img-carousel"
+                            src="#">
+                        <div>
+                            <p>{{CONTEUDO_SLIDE_1}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="content">
+                    <div class="d-center area-util">
+                        <img class="img-carousel"
+                            src="#">
+                        <div>
+                            <p>{{CONTEUDO_SLIDE_2}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="content">
+                    <div class="d-center area-util">
+                        <img class="img-carousel"
+                            src="#">
+                        <div>
+                            <p>{{CONTEUDO_SLIDE_3}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="content">
+                    <div class="d-center area-util">
+                        <img class="img-carousel"
+                            src="#">
+                        <div>
+                            <p>{{CONTEUDO_SLIDE_4}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+        <a class="carousel-control-prev" href="#carousel-1" role="button" data-slide="prev"><span
+                    class="carousel-control-prev-icon"></span><span
+                    class="sr-only">Previous</span></a><a class="carousel-control-next"
+                href="#carousel-1" role="button" data-slide="next"><span
+                    class="carousel-control-next-icon"></span><span class="sr-only">Next</span></a>
+        </div>
+        <ol class="carousel-indicators">
+            <li data-target="#carousel-1" data-slide-to="0" class="active"></li>
+            <li data-target="#carousel-1" data-slide-to="1" class=""></li>
+            <li data-target="#carousel-1" data-slide-to="2" class=""></li>
+            <li data-target="#carousel-1" data-slide-to="3" class=""></li>
+        </ol>
+    </div>
+</div>
+```
+
+
+b) [CARROSSEL_IMG] contém apenas [ITEM_CARROSSEL_IMG]. [ITEM_CARROSSEL_IMG] pode conter: texto, [NEGRITO], [ITALICO], [LINK], [DOWNLOAD], [LISTA_NUMERADA]<->[ITEM_LISTA_NUMERADA], [LISTA_MARCADORES]<->[ITEM_LISTA_MARCADORES], [TOOLTIP] e [MODAL_LINK]
+
+c) [SECAO], [CITACAO], [MODAL]<->[CONTEUDO_MODAL], [DESTAQUE], [SANFONA]<->[ITEM_SANFONA]<->[CONTEUDO]
+
+d) O atributo src da img.img-carousel deve ser igual a "#", para que um membro da equipe de conteúdo possa posteriormente adicionar a imagem correta. 
+
+e) O número de itens dentro de '.carousel-inner' depende de quantos pares '[ITEM_CARROSSEL_IMG]' o código do parse vai encontrar dentro do par de tags '[CARROSSEL_IMG]' pai desses elementos '[ITEM_CARROSSEL_IMG]' no conteúdo extraído do arquivo .docx; vale ressaltar que os atributos 'id' e 'href' estão fixos no exemplo da letra a) mas devem ser gerados dinamicamente pelo código responsável pelo parse. A lógica de inserção da classe active também precisa ser feita pelo código do parse. Por padrão, adicionamos a classe 'active' no primeiro elemento. Perceba que dentro de cada item do carrossel eu coloquei o texto correspondente ao que estava no exemplo do docx ('CONTEUDO_SLIDE_X') entre um par de tags <p>, porém é preciso levar em conta que se o usuário colocar o conteúdo entre um par de outra tag, como por exemplo [LISTA_NUMERADA]<->[ITEM_LISTA_NUMERADA], ao invés da tag <p>, o código deve substituir pelo html referente à tag indicada no documento. Eu coloquei o par de tags <p> para demonstrar que se não huver nenhuma outra tag, o código deve tratar o conteúdo como se fosse um parágrafo.
+
+"""
+
+
+
+
+"""[DOWNLOAD]"""
+a) 
+
+DOCX:
+```
+[DOWNLOAD]CONTEUDO[/DOWNLOAD]
+```
+
+HTML:
+```
+<!-- {{CONTEUDO}} -->
+<div>
+    <p>INSERIR LINK PARA DOWNLOAD AQUI: {{CONTEUDO}}</p>
+</div>
+```
+
+b)Apenas texto.
+
+c) [SECAO], [CITACAO], [MODAL]<->[CONTEUDO_MODAL], [DESTAQUE], [SANFONA]<->[ITEM_SANFONA]<->[CONTEUDO], [LISTA_NUMERADA]<->[ITEM_LISTA_NUMERADA], [LISTA_MARCADORES]<->[ITEM_LISTA_MARCADORES], [CARROSSEL]<->[ITEM_CARROSSEL], [CARROSSEL_IMG]<->[ITEM_CARROSSEL_IMG], [FLIP_CARD]<->[VERSO]
+
+d) Não se aplica. Esse componente terá seu código adicionado posteriormente pelo membro responsável da equipe de Design e Audiovisual.
+
+e) Esse é um daqueles componentes que o código do parse não irá adiantar tanto assim o trabalho do responsável da equipe de design, porém não há problema. 
+
+"""
+
+
+
+
+
+"""[CITACAO]"""
+a) 
+
+DOCX:
+```
+[CITACAO]CONTEUDO[/CITACAO]
+```
+
+HTML:
+```
+<div>
+<div class="citacao-texto">
+    <p class="p-corpo p-citacao">{{CONTEUDO}}</p>
+</div>
+<div class="separador-medio"></div>
+</div>
+```
+
+b) Dentro dessa tag podem haver conteúdos em texto, os quais, devem ser inseridos com a tag <p> e com as classes 'p-corpo' e 'p-citacao'; [NEGRITO], [ITALICO], [LINK], [IMAGEM], [MURAL], [DOWNLOAD], [LISTA_NUMERADA]<->[ITEM_LISTA_NUMERADA], [LISTA_MARCADORES]<->[ITEM_LISTA_MARCADORES], [TOOLTIP] e [MODAL_LINK];
+
+c) [SECAO], [MODAL]<->[CONTEUDO_MODAL]
+
+d) Não se aplica;
+
+e) Nesse caso, eu utilizei para dispor o conteúdo na estrutura HTML uma tag parágrafo com as classes 'p-corpo' e 'p-citacao'. Utilizei a tag paragrafo pois como estamos fazendo no restante do código, ela será adicionada por padrão caso nenhuma outra tag seja encontrada para 'encapsular' aquele conteúdo. Apenas a classe 'p-citacao' deverá ser adicionada independente da tag que estiver dentro, isto é, o código do parse verificará qual tag o usuário colocou dentro do par [CITACAO], e adicionará na tag html mais externa da estrutura html dessa tag a classe 'p-citacao'. Se houver multiplos parágrafos de texto puro todos devem ser adicionados dentro da mesma tag <p>.
+
+"""
+
+
+
+
+
+
+
+"""[MODAL]"""
+
+a) 
+
+DOCX:
+```
+[MODAL]
+[TITULO]{{TITULO_MODAL}}[/TITULO]
+[CONTEUDO]{{CONTEUDO_MODAL}}[/CONTEUDO]
+[/MODAL]
+```
+
+
+HTML:
+```
+<div class="modal fade" role="dialog" tabindex="-1" id="{{TITULO_MODAL}}">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header c-aula-container curso">
+                    <h4 class="modal-title">{{TITULO_MODAL}}</h4><button class="close" type="button" aria-label="Close"
+                        data-dismiss="modal"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body c-aula-container curso secao1">
+                {{CONTEUDO_MODAL}}
+                </div>
+                <div class="modal-footer c-aula-container curso"><button class="btn btn-light" type="button"
+                        data-dismiss="modal">Fechar</button></div>
+            </div>
+        </div>
+    </div>
+```
+
+b) Qualquer tag com exceção de [TOPICO], [TITULO_TOPICO], [TITULO_AULA], [SECAO], [ANTERIOR], [PROXIMO], [CARD_MODAL], [REFERENCIAS] e [MODAL_LINK] e obviamente a própria tag [MODAL].
+
+c) Somente dentro da tag [SECAO].
+
+d) A Equipe de Design poderá intervir no id do elemento pai(div.modal.fade). Inicialmente o id coincidirá com o valor de [TITULO_MODAL], mas poderá ser mudado pelo responsável da equipe de Design e Audiovisual caso haja necessidade.
+
+e) : (Informação adicional) -> Esse componente trata-se do componente de mesmo nome (Modal) do framework Bootstrap. Ele serve para que sejam inseridos conteúdos fora do primeiro nível de leitura, isso significa que por causa desse comportamento, ele precisa de um outro elemento que seja capaz de ativá-lo, um elemento como [MODAL_LINK] ou [CARD_MODAL]; esses elementos conterão dois atributos: "data-toggle:'modal'" e "data-target:'#{{TITULO_MODAL}}'"; tais atributos são capazes de transformar o elemento <span> correspondente ao HTML de [MODAL_LINK] ou a div correspondente ao HTML de [CARD_MODAL] em gatilhos que abrirão o modal em questão.
+
+"""
+
+
+
+
+
+"""[TOOLTIP]"""
+
+a) 
+
+DOCX:
+```
+[TOOLTIP]CONTEUDO[/TOOLTIP]
+```
+
+HTML:
+```
+<!-- TOOLTIP: {{CONTEUDO}} -->
+
+```
+
+b)--
+c)--
+d)--
+e) Esse é um daqueles componentes que o código do parse não irá adiantar tanto assim o trabalho do responsável da equipe de design, porém não há problema. 
+"""
+
+
+"""[CARD_MODAL]"""
+Esse componente ficará de fora por enquanto. Não é necessário que o código se preocupe muito com ele. Basta adicionar um comentário como colocado abaixo.
+
+a) 
+
+DOCX:
+```
+[CARD_MODAL]CONTEUDO[/CARD_MODAL]
+```
+
+HTML:
+```
+<!-- CARD_MODAL: {{CONTEUDO}} -->
+```
+
+b)--
+c)--
+d)--
+e) Esse é um daqueles componentes que o código do parse não irá adiantar tanto assim o trabalho do responsável da equipe de design, porém não há problema. 
+"""
+
+
+
+
+
+"""[INFOGRAFICO]"""
+
+a) 
+
+DOCX:
+```
+[INFOGRAFICO]CONTEUDO[/INFOGRAFICO]
+```
+
+HTML:
+```
+<!-- INFOGRAFICO -->
+<p>INSERIR O INFOGRÁFICO AQUI</p>
+
+```
+
+b)--
+c)--
+d)--
+e) Esse é um daqueles componentes que o código do parse não irá adiantar tanto assim o trabalho do responsável da equipe de design, porém não há problema. 
+"""
+
+
+
+
+
+
+"""[IMAGEM]"""
+a) HTML:
+```
+<div class="componente-imagem">
+    <img src="#" alt="{{CONTEUDO}}" class="img-fluid">
+</div>
+```
+
+b) Texto para o atributo alt.
+c) Pode aparecer dentro de [SECAO], [CITACAO], [MODAL]<->[CONTEUDO_MODAL], [DESTAQUE], [SANFONA]<->[ITEM_SANFONA]<->[CONTEUDO]
+d) O atributo src deve vir igual a '#'.
+e) Esse é um daqueles componentes que o código do parse não irá adiantar completamente o trabalho do responsável da equipe de design. O código do parse deve apenas garantir que na estrutura haja a div.componente-imagem com a img.img-fluid dentro dela; após isso, na pós produção o responsável por criar essa imagem adicionará seu link no atributo 'src'. 
+"""
+
+
+
+
+
+"""[MURAL]"""
+a) 
+
+DOCX:
+```
+[MURAL]
+    [ITEM_MURAL]CONTEUDO[/ITEM_MURAL]
+[/MURAL]
+```
+
+
+HTML:
+```
+<div>
+<div class="componente-mural" style="max-width: 100%;">
+    <div class="card-mural">
+        <div class="content-alfinete">
+            <div class="alfinete"></div>
+        </div>
+        <div class="texto">
+            <p>CONTEUDO</p>
+        </div>
+    </div>
+</div>
+    <div class="separador-medio"></div>
+</div>
+```
+
+b) [MURAL] contém apenas [ITEM_MURAL]. [ITEM_MURAL] pode conter texto, [NEGRITO] e [ITALICO];
+
+c) Pode aparecer dentro de [SECAO], [CITACAO], [MODAL]<->[CONTEUDO_MODAL], [DESTAQUE], [SANFONA]<->[ITEM_SANFONA]<->[CONTEUDO]
+
+d) Não se aplica
+
+e) Esse mural é um componente que serve para dar certo destaque a pequenas frases dentro da aula. O nome é bastante sugestivo. De fato, seu uso é similar ao uso de um mural real. Vale lembrar que o número de div.card-mural vai depender da quantidade de tags [ITEM_MURAL] encontradas pelo código do parse dentro do par de tags [MURAL], obtivo após a extração do documento .docx;
+"""
+
+
+
+"""[DESTAQUE]"""
+a) 
+
+DOCX:
+```
+[DESTAQUE]CONTEUDO[/DESTAQUE]
+```
+
+HTML:
+
+```
+<div>
+    <div class="destaque-atencao">
+        <div class="cabecalho">
+            <div class="container-imagem"><svg width="57" height="57" viewBox="0 0 57 57" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M27.1642 9.4601C27.7211 8.36999 29.2789 8.36999 29.8358 9.46011L39.8047 28.9738L50.0682 49.0639C50.578 50.062 49.8531 51.2463 48.7324 51.2463H8.26761C7.14686 51.2463 6.42195 50.062 6.93183 49.0639L27.1642 9.4601Z"
+                        stroke="var(--cor-primaria)" stroke-linejoin="round"></path>
+                    <path
+                        d="M29.5 45.7463C31.433 45.7463 33 44.1793 33 42.2463C33 40.3133 31.433 38.7463 29.5 38.7463C27.567 38.7463 26 40.3133 26 42.2463C26 44.1793 27.567 45.7463 29.5 45.7463Z"
+                        fill="var(--cor-secundaria)"></path>
+                    <path
+                        d="M31.5 40.7463C31.5 42.6793 29.933 44.2463 28 44.2463C26.067 44.2463 24.5 42.6793 24.5 40.7463C24.5 38.8133 26.067 37.2463 28 37.2463C29.933 37.2463 31.5 38.8133 31.5 40.7463Z"
+                        stroke="var(--cor-primaria)" stroke-linejoin="round"></path>
+                    <path d="M28 34.7463L28 21.7463" stroke="var(--cor-primaria)"
+                        stroke-linejoin="round">
+                    </path>
+                    <path d="M28 34.7463L28 21.7463" stroke="black" stroke-opacity="0.2"
+                        stroke-linejoin="round"></path>
+                    <path d="M10 48.7463H47.3737" stroke="var(--cor-primaria)" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-dasharray="2 2">
+                    </path>
+                    <path d="M27 14.7463L13 42.7463" stroke="var(--cor-primaria)" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-dasharray="2 2">
+                    </path>
+                    <path d="M35 24.1936L44 42.7463" stroke="var(--cor-primaria)" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-dasharray="2 2">
+                    </path>
+                </svg>
+            </div>
+            <h4 style="margin-left: .5rem;">Destaque</h4>
+        </div>
+        <div class="corpo">
+            <p>{{CONTEUDO}}</p>
+        </div>
+    </div>
+</div>
+```
+
+b) Dentro dessa tag podem haver conteúdos em texto, [NEGRITO], [ITALICO], [SANFONA], [LINK], [IMAGEM], [MURAL], [FLIP_CARD], [FLIP_CARD_IMG] [DOWNLOAD], [LISTA_NUMERADA], [LISTA_MARCADORES], [CARROSSEL], [CARROSSEL_IMG], [TOOLTIP] e [MODAL_LINK];
+
+c) [SECAO], [MODAL]<->[CONTEUDO_MODAL]
+
+d) Não se aplica;
+
+e) Perceba que na estrutura HTML eu coloquei o 'CONTEUDO' entre um par de tags parágrafo. É importante ressaltar que esse par de tags parágrafo é o default(padrão), isto é, quando o conteúdo encapsulado pelo par de tags [DESTAQUE] não possuir nenhuma outra tag abraçando-o, o código deve tratar aquele conteúdo como sendo um parágrafo. Se porventura outra tag for encontrada, como por exemplo: ```[DESTAQUE][LISTA_NUMERADA][ITEM_LISTA_NUMERADA]CONTEUDO[/ITEM_LISTA_NUMERADA][/LISTA_NUMERADA][/DESTAQUE]```, logo, não será inserido o par de tags parágrafo, mas sim, a estrutura html correspondente às tags encontradas.
+
+"""
+
+
+
+
+
+
+
+"""[VIDEO]"""
+
+a) 
+
+DOCX:
+```
+[VIDEO]CONTEUDO[/VIDEO]
+```
+
+HTML:
+
+```
+<div>
+    <div class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item"
+            src="#"></iframe>
+    </div>
+</div>
+
+<!-- {{CONTEUDO}} -->
+```
+
+b) Somente texto.
+
+c) Apenas de [SECAO]
+
+d) O atributo src deve vir igual a '#'.
+
+e) Assim como as imagens e infográficos, em que eu disse que era necessária a intervenção de um responsável da equipe de Design, aqui não é diferente. Como alguns vídeos são publicados no canal do Youtube e no Vimeo pela equipe de Desing é necessário que esse componente seja finalizado na pós produção.
+"""
+
+
+"""[LINK]"""
+a) 
+
+DOCX:
+```
+[LINK]CONTEUDO[/LINK]
+```
+
+HTML:
+```
+<!-- {{CONTEUDO}} -->
+<div>
+    <a href="#">INSIRA O LINK AQUI</a>
+</div>
+```
+
+b)Apenas texto.
+
+c) [SECAO], [CITACAO], [MODAL]<->[CONTEUDO_MODAL], [DESTAQUE], [SANFONA]<->[ITEM_SANFONA]<->[CONTEUDO], [LISTA_NUMERADA]<->[ITEM_LISTA_NUMERADA], [LISTA_MARCADORES]<->[ITEM_LISTA_MARCADORES], [CARROSSEL]<->[ITEM_CARROSSEL], [CARROSSEL_IMG]<->[ITEM_CARROSSEL_IMG], [FLIP_CARD]<->[VERSO]
+
+d) O atributo href deve vir igual a '#'.
+
+e) Esse é um daqueles componentes que o código do parse não irá adiantar tanto assim o trabalho do responsável da equipe de design, porém não há problema. 
+"""
+
+
+
+
+
+"""[FLIP_CARD]"""
+
+a) 
+
+DOCX:
+```
+[FLIP_CARD]
+[FRENTE]{{FRENTE}}[/FRENTE]
+[VERSO]{{VERSO}}[/VERSO]
+[/FLIP_CARD]
+```
+
+HTML:
+```
+<div class="flip-card-flexbox">
+    <div class="w290-h450 card-container">
+        <div class="card-t">
+            <div class="front-content">
+                <p>{{FRENTE}}</p>
+            </div>
+            <div class="content">
+                <p>{{VERSO}}</p>
+            </div>
+        </div>
+    </div>
+    <div class="separador-medio"></div>
+</div>
+```
+
+b) Apenas texto, e as tags [NEGRITO], [ITALICO]
+
+c) [SECAO], [MODAL]<->[CONTEUDO_MODAL] 
+
+d) Não se aplica.
+
+e) -
+
+"""
+
+
+
+
+
+"""[FLIP_CARD_IMG]"""
+
+a) 
+
+DOCX:
+```
+[FLIP_CARD_IMG]
+[FRENTE]{{FRENTE}}[/FRENTE]
+[VERSO]{{VERSO}}[/VERSO]
+[/FLIP_CARD_IMG]
+```
+
+HTML:
+```
+<!-- FLIP_CARD_IMG -->
+<p>INSERIR O FLIP_CARD_IMG AQUI</p>
+
+```
+
+b)--
+c)--
+d)--
+e) Esse é um daqueles componentes que o código do parse não irá adiantar tanto assim o trabalho do responsável da equipe de design, porém não há problema. 
+"""
+
+
+
+
+
+
+"""[SANFONA]"""
+
+a)
+
+DOCX:
+```
+[SANFONA]
+    [ITEM_SANFONA]
+        [TITULO]Título do item 1[/TITULO]
+        [CONTEUDO]Conteúdo do item 1[/CONTEUDO]
+    [/ITEM_SANFONA]
+[/SANFONA]
+```
+
+HTML:
+```
+<div class="sanfona-container">
+    <p class="dica-navegacao">Clique nos títulos abaixo</p>
+    <div style="margin-block: .5rem;">
+        <div class="sanfona-collapse"><a data-toggle="collapse" aria-expanded="false" aria-controls="collapse-4" href="#collapse-4" role="button">Título do item 1</a>
+            <div id="collapse-4" class="collapse">
+                <p class="p-corpo">Conteúdo do item 1</p>
+            </div>
+        </div>
+    </div>
+    <div class="separador-medio"></div>
+</div>
+```
+
+b) Dentro de [SANFONA] apenas [ITEM_SANFONA]. Dentro de [ITEM_SANFONA] apenas [TITULO] E [CONTEUDO]. Dentro de [TITULO] apenas texto. Dentro de [CONTEUDO] pode haver todos os componentes exceto [TOPICO], [TITULO_AULA], [TITULO_TOPICO], [SECAO], [ANTERIOR], [PROXIMO], [MODAL] e [REFERENCIAS].
+
+c) [SECAO], [CITACAO], [MODAL] e [DESTAQUE]
+
+d) Não se aplica.
+
+e) Para esse componente alguns cuidados devem ser tomados pelo código. Em 'div.sanfona-collapse a[aria-controls]' o valor desse atributo depende do 'id' da 'div.collapse' filha de 'div.sanfona-collapse'. O valor de href do elemento 'div.sanfona-collapse a' também depende do mesmo 'id' da 'div.collapse' filha de 'div.sanfona-collapse'. Além disso, o número de 'div.collapse's depende diretamente do número de pares '[ITEM_SANFONA]' filhas de '[SANFONA]' encontradas nas extração do conteúdo do documento. Similar ao que acontece com [CARROSSEL] e [FLIP_CARD] é necessário que o código se atente tanto à nomeação do id 'div.collapse', como também a definição dos atributos 'href' e 'aria-controls' da tag 'a'. Lembro aqui que esse componente é um collapse inspirado no componente de mesmo nome do framework bootstrap. Além disso, é importante ressaltar que assim como em outros componentes, eu coloquei o conteúdo 'Conteúdo do item 1' dentro de um par de tags parágrafo unicamente pelo fato de não haverem outras tags encapsulando o conteúdo, além obviamente da própria tag [CONTEUDO]. Se porventura outra tag for encontrada encapsulando o conteúdo, não será inserido o par de tags parágrafo, mas sim, a estrutura html correspondente às tags encontradas.
+"""
+
+
+
+
+
+
+
+"""[REFERENCIAS]"""
+
+a)
+
+DOCX:
+```
+[REFERENCIAS]
+CONTEUDO 1
+CONTEUDO 2
+CONTEUDO 3
+[/REFERENCIAS]
+```
+
+HTML:
+```
+<div class="d-center referencias" style="flex-direction: column;margin-top: 2rem;"><span class="dica-navegacao">Dica de navegação</span>
+    <div class="btn-referencias" data-toggle="modal" data-target="#referencias"><i class="far fa-file" style="font-size: 2rem;"></i><span>Referências</span></div>
+</div>
+
+<div id="referencias" class="modal fade" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Referências</h3><button class="close" type="button" aria-label="Close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body c-aula-container curso">
+            <p>{{CONTEUDO 1}}</p>
+            <p>{{CONTEUDO 2}}</p>
+            <p>{{CONTEUDO 3}}</p>
+            </div>
+            <div class="modal-footer"><button class="btn btn-light" type="button" data-dismiss="modal">Fechar</button></div>
+        </div>
+    </div>
+</div>
+```
+
+b) Apenas texto, [LINK], [NEGRITO] e [ITÁLICO].
+
+c) Apenas dentro de [SECAO]. Se a única outra tag que encapsular essa for a tag [TOPICO], logo, a tag [SECAO] deve ser adicionada entre as duas, isto é: 
+
+ANTES:
+```
+[TOPICO]
+[REFERENCIAS][/REFERENCIAS]
+[/TOPICO]
+```
+
+DEPOIS:
+```
+[TOPICO]
+[SECAO]
+[REFERENCIAS][/REFERENCIAS]
+[/SECAO]
+[/TOPICO]
+```
+
+d) Não se aplica.
+
+e) Esse componente é bastante atípico. A estrutura dele é definida em duas partes.
+1. Uma por um modal com um id sempre igual - 'referencias' -  e a utilidade desse componente é armazenar todas as referências que foram utilizadas pela equipe de Conteúdo para fazer a aula. 
+2. A segunda parte trata-se de um botão clicável já com o alvo do próprio modal. O usuário consegue abrir o modal clicando nesse botão.
+
+Vale ressaltar que para esse componente, não é um problema que o id do modal seja sempre o mesmo, uma vez que não haverá, por aula, mais de um modal de referências.
+"""
+
+
+
+
+
+"""[MODAL_LINK]"""
+a) 
+
+DOCX:
+```
+[MODAL_LINK]CONTEUDO[/MODAL_LINK]
+```
+
+HTML:
+```
+<!-- {{CONTEUDO}} -->
+<p>INSIRA O ELEMENTO MODAL_LINK</p>
+```
+
+b)Apenas texto.
+
+c) [SECAO], [CITACAO], [MODAL]<->[CONTEUDO_MODAL], [DESTAQUE], [SANFONA]<->[ITEM_SANFONA]<->[CONTEUDO], [LISTA_NUMERADA]<->[ITEM_LISTA_NUMERADA], [LISTA_MARCADORES]<->[ITEM_LISTA_MARCADORES], [CARROSSEL]<->[ITEM_CARROSSEL], [CARROSSEL_IMG]<->[ITEM_CARROSSEL_IMG], [FLIP_CARD]<->[VERSO]
+
+d) Não se aplica
+
+e) Esse é um daqueles componentes que o código do parse não irá adiantar tanto assim o trabalho do responsável da equipe de design, porém não há problema. 
+"""
+
+
+
+"""[TOPICO]"""
+
+e) Preciso fazer algumas considerações a respeito dessa tag. O par de tags [TOPICO] é utilizado para delimitar os tópicos dentro do documento. Digo isso pois os documentos das aulas podem conter no mínimo 1, e no máximo X tópicos, e tais tópicos estarão separados por esses pares de tags. Um exemplo para que fique mais claro:
+
+```
+[TOPICO]
+[TITULO_TOPICO]Aula 4 - Tópico 1[/TITULO_TOPICO]
+[TITULO_AULA]Projetos escolares como alternativa para a diminuição da defasagem de aprendizagem[/TITULO_AULA]
+...
+[REFERENCIAS]...[REFERENCIAS]
+[/TOPICO]
+
+[TOPICO]
+[TITULO_TOPICO]Aula 4 - Tópico 2[/TITULO_TOPICO]
+[TITULO_AULA]O que fazer com a defasagem?[/TITULO_AULA]
+...
+[REFERENCIAS]...[REFERENCIAS]
+[/TOPICO]
+
+[TOPICO]
+[TITULO_TOPICO]Aula 4 - Tópico 3[/TITULO_TOPICO]
+[TITULO_AULA]Como a BNCC pode auxiliar no reparo da defasagem escolar?[/TITULO_AULA]
+...
+[REFERENCIAS]...[REFERENCIAS]
+[/TOPICO]
+
+```
+
+Acima está um ótimo exemplo do que estou falando. Por vezes, um mesmo documento conta com 3, 4 e até mais tópicos. Como você verá no código atual do parse, esses diversos tópicos precisam ser separados, uma vez que quando são publicados no Moodle, sua publicação é feita uma a uma, isto é, cada tópico é publicado em uma URL diferente. Outra coisa que é importante salientar é a respeito das referências; perceba que no exemplo acima cada tópico tem as suas próprias referências, e isso permite que o id do modal correspondente à estrutura html possa ter sempre o mesmo nome. Quando o parse passar por esse conteúdo é necessário que ele consiga lidar com essa separação. 
+
+"""
+
+*#-- 4. Detalhes dos Componentes (FIM) --#*
+--------------#---------------
+
+5. 
+
+a) Eu desenvolvi em javascript. O código não está identificando todos os componentes. E mesmo quando identifica, às vezes formata-os incorretamente. Você perguntou quais bibliotecas ele atualemnte usa para ler o .docx, acho que vou fazer o seguinte para facilitar: vou te mandar o código atual na próxima mensagem, ok?
+
+b e c) serão respondidas quando eu enviar o código atual para você.
+
+d) O script recebe o texto cru, sem indicações de negritos ou itálicos.
+
+
+--------------#---------------
+
+6.
+
+a) O css de todos os componentes está em um link só: "https://recursos-moodle.caeddigital.net/projetos/2024/municipios/css/municipios-2024.css";
+
+b) Ele apenas precisa incluir os scripts e os arquivos de estilo.
+
+c) Sim, o script precisa gerar esses códigos dinamicamente. Quando eu te enviar o código você vai ver a estratégia.
+
+
+--------------#---------------
+
+Vou enviar o código do parse na próxima mensagem.

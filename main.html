@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construtor de Aulas</title>
+    <link rel="stylesheet" href="src/styles/base.css">
+    <link rel="stylesheet" href="src/styles/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="split-layout split-layout-4">
+            <!-- Seção Fábrica -->
+            <div class="section section-fabrica fade-in">
+                <div class="section-content">
+                    <i class="fas fa-industry icon-large"></i>
+                    <h2>Fábrica</h2>
+                    <p>Gerencie a produção de conteúdo</p>
+                    <div class="button-group">
+                        <a href="#" class="button button-light" id="btn-fabrica">
+                            <span>Acessar</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção Identidades e Componentes -->
+            <div class="section section-identidades fade-in">
+                <div class="section-content">
+                    <i class="fas fa-fingerprint icon-large"></i>
+                    <h2>Identidades e Componentes</h2>
+                    <p>Gerencie as identidades e componentes do sistema</p>
+                    <div class="button-group">
+                        <a href="#" class="button button-light" id="btn-identidades">
+                            <span>Acessar</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção Relatórios -->
+            <div class="section section-relatorios fade-in">
+                <div class="section-content">
+                    <i class="fas fa-chart-bar icon-large"></i>
+                    <h2>Relatórios</h2>
+                    <p>Visualize relatórios e estatísticas</p>
+                    <div class="button-group">
+                        <a href="#" class="button button-light">
+                            <span>Gerar Relatório</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção Configurações -->
+            <div class="section section-configuracoes fade-in">
+                <div class="section-content">
+                    <i class="fas fa-cog icon-large"></i>
+                    <h2>Configurações</h2>
+                    <p>Configure as preferências do sistema</p>
+                    <div class="button-group">
+                        <a href="#" class="button button-light">
+                            <span>Configurar</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configurar botões de navegação
+            document.getElementById('btn-fabrica').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.electronAPI.navigate('fabrica');
+            });
+
+            document.getElementById('btn-identidades').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.electronAPI.navigate('identidades-componentes');
+            });
+        });
+    </script>
+</body>
+
+</html>

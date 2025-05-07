@@ -1,0 +1,31 @@
+{
+  "name": "construtor-de-aulas",
+  "version": "1.0.0",
+  "description": "Aplicativo para construção de aulas interativas",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "electron",
+    "aulas",
+    "educação"
+  ],
+  "author": "CAEd",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^28.1.4"
+  },
+  "dependencies": {
+    "archiver": "^6.0.1",
+    "cheerio": "^1.0.0",
+    "fs-extra": "^11.2.0",
+    "googleapis": "^131.0.0",
+    "mammoth": "^1.6.0",
+    "rehype-parse": "^9.0.1",
+    "rehype-stringify": "^10.0.1",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.0.0"
+  }
+}

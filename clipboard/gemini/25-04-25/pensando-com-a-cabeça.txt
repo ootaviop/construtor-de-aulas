@@ -1,0 +1,175 @@
+Eu tive uma sacada muito boa. Ela consiste em usarmos um JSON para montar a estrutura do documento.
+Como assim? Você me pergunta.
+Pensei em fazermos algo similar a: 
+"""
+{
+    topico: [
+        titulo: "Apresentação - aula 1",
+        aula: "<em>A Importância do Planejamento Escolar</em>",
+        secao: {
+            paragrafo: "<p>A rede estadual de ensino da Paraíba tem um compromisso importante agendado para os próximos meses e início do ano de 2025. As equipes de todas as escolas da rede devem se reunir para desenvolver o <strong>Planejamento Escolar</strong>, que irá guiar as ações escolares.</p>",
+            paragrafo: "<p><strong>Se você ficou com um frio</strong> na barriga ao se lembrar desse compromisso, não se preocupe. Isso é um sinal de que você entende a importância desse momento para construir continuamente uma escola que atenda às necessidades de aprendizagem e desenvolvimento de cada estudante paraibano, de suas </p>",
+            paragrafo: "<p>Ao final desta aula, você deve ser capaz de:</p>",
+            lista: {
+                1: "Entender a importância do processo de reflexão crítica para o planejamento escolar.",
+                2: "Identificar no planejamento escolar o caminho para o alcance de objetivos de aprendizagem e metas educacionais.",
+                3: "Reconhecer a necessidade do equilíbrio entre a recomposição das aprendizagens e a implementação do currículo alinhado à BNCC."
+            },
+        },
+        secao: {
+            paragrafo: "<p>Como você viu no vídeo acima, as estratégias de elaboração, execução e monitoramento do projeto escolar são, sempre, realizadas colaborativamente. Além de ser uma ferramenta muito interessante para os professores dos Anos Iniciais (que comumente já realizam um trabalho interdisciplinar, por ministrarem mais de uma disciplina em uma mesma turma), o projeto escolar é uma importante ferramenta para os professores dos Anos Finais, uma vez que os professores de todas as disciplinas podem participar da sua elaboração.</p>"
+        },
+        secao: {
+            paragrafo: "<p>Esse trabalho, de acordo com Hernández (1998), permite um diálogo maior entre todas as disciplinas escolares, promovendo um dinamismo ao currículo escolar. As disciplinas escolares no trabalho com projetos, de acordo com o pesquisador, constituem-se como pontos de referência. Os conceitos ou as ideias-chave são desenvolvidos a partir de problemáticas e possibilitam explorarem e criarem relações entre:</p>"
+        }
+        secao: {
+            anterior: /123,
+            proximo: /321
+        },
+        secao: {
+            referencias:{
+                1: <p>BRASIL. Ministério da Educação. <strong>Base Nacional Comum Curricular</strong>. Brasília: MEC, 2017.</p>,
+                2: <p>BRASIL. MINISTÉRIO DA EDUCAÇÃO. Conselho Nacional da Educação. Resolução CNE/CP nº 1, de 27 de outubro de 2020. Dispõe sobre as Diretrizes Curriculares Nacionais para a Formação Continuada de Professores da Educação Básica e institui a Base Nacional Comum para a Formação Continuada de Professores da Educação Básica (BNC-Formação Continuada). Brasília, 2020.</p>
+            }
+        }
+    ],
+    topico: [
+        titulo: "Apresentação - aula 2",
+        aula: "<em>A Importância do Planejamento Escolar</em>",
+        secao: {
+            paragrafo: "<p>A rede estadual de ensino da Paraíba tem um compromisso importante agendado para os próximos meses e início do ano de 2025. As equipes de todas as escolas da rede devem se reunir para desenvolver o <strong>Planejamento Escolar</strong>, que irá guiar as ações escolares.</p>",
+            paragrafo: "<p><strong>Se você ficou com um frio</strong> na barriga ao se lembrar desse compromisso, não se preocupe. Isso é um sinal de que você entende a importância desse momento para construir continuamente uma escola que atenda às necessidades de aprendizagem e desenvolvimento de cada estudante paraibano, de suas </p>",
+            paragrafo: "<p>Ao final desta aula, você deve ser capaz de:</p>",
+            lista: {
+                1: "Entender a importância do processo de reflexão crítica para o planejamento escolar.",
+                2: "Identificar no planejamento escolar o caminho para o alcance de objetivos de aprendizagem e metas educacionais.",
+                3: "Reconhecer a necessidade do equilíbrio entre a recomposição das aprendizagens e a implementação do currículo alinhado à BNCC."
+            },
+        },
+        secao: {
+            paragrafo: "<p>Como você viu no vídeo acima, as estratégias de elaboração, execução e monitoramento do projeto escolar são, sempre, realizadas colaborativamente. Além de ser uma ferramenta muito interessante para os professores dos Anos Iniciais (que comumente já realizam um trabalho interdisciplinar, por ministrarem mais de uma disciplina em uma mesma turma), o projeto escolar é uma importante ferramenta para os professores dos Anos Finais, uma vez que os professores de todas as disciplinas podem participar da sua elaboração.</p>"
+        },
+        secao: {
+            paragrafo: "<p>Esse trabalho, de acordo com Hernández (1998), permite um diálogo maior entre todas as disciplinas escolares, promovendo um dinamismo ao currículo escolar. As disciplinas escolares no trabalho com projetos, de acordo com o pesquisador, constituem-se como pontos de referência. Os conceitos ou as ideias-chave são desenvolvidos a partir de problemáticas e possibilitam explorarem e criarem relações entre:</p>"
+        }
+        secao: {
+            anterior: /123,
+            proximo: /321
+        },
+        secao: {
+            referencias:{
+                1: <p>BRASIL. Ministério da Educação. <strong>Base Nacional Comum Curricular</strong>. Brasília: MEC, 2017.</p>,
+                2: <p>BRASIL. MINISTÉRIO DA EDUCAÇÃO. Conselho Nacional da Educação. Resolução CNE/CP nº 1, de 27 de outubro de 2020. Dispõe sobre as Diretrizes Curriculares Nacionais para a Formação Continuada de Professores da Educação Básica e institui a Base Nacional Comum para a Formação Continuada de Professores da Educação Básica (BNC-Formação Continuada). Brasília, 2020.</p>
+            }
+        }
+    ],
+    topico: [
+        titulo: "Apresentação - aula 3",
+        aula: "<em>A Importância do Planejamento Escolar</em>",
+        secao: {
+            paragrafo: "<p>A rede estadual de ensino da Paraíba tem um compromisso importante agendado para os próximos meses e início do ano de 2025. As equipes de todas as escolas da rede devem se reunir para desenvolver o <strong>Planejamento Escolar</strong>, que irá guiar as ações escolares.</p>",
+            paragrafo: "<p><strong>Se você ficou com um frio</strong> na barriga ao se lembrar desse compromisso, não se preocupe. Isso é um sinal de que você entende a importância desse momento para construir continuamente uma escola que atenda às necessidades de aprendizagem e desenvolvimento de cada estudante paraibano, de suas </p>",
+            paragrafo: "<p>Ao final desta aula, você deve ser capaz de:</p>",
+            lista: {
+                1: "Entender a importância do processo de reflexão crítica para o planejamento escolar.",
+                2: "Identificar no planejamento escolar o caminho para o alcance de objetivos de aprendizagem e metas educacionais.",
+                3: "Reconhecer a necessidade do equilíbrio entre a recomposição das aprendizagens e a implementação do currículo alinhado à BNCC."
+            },
+        },
+        secao: {
+            paragrafo: "<p>Como você viu no vídeo acima, as estratégias de elaboração, execução e monitoramento do projeto escolar são, sempre, realizadas colaborativamente. Além de ser uma ferramenta muito interessante para os professores dos Anos Iniciais (que comumente já realizam um trabalho interdisciplinar, por ministrarem mais de uma disciplina em uma mesma turma), o projeto escolar é uma importante ferramenta para os professores dos Anos Finais, uma vez que os professores de todas as disciplinas podem participar da sua elaboração.</p>"
+        },
+        secao: {
+            paragrafo: "<p>Esse trabalho, de acordo com Hernández (1998), permite um diálogo maior entre todas as disciplinas escolares, promovendo um dinamismo ao currículo escolar. As disciplinas escolares no trabalho com projetos, de acordo com o pesquisador, constituem-se como pontos de referência. Os conceitos ou as ideias-chave são desenvolvidos a partir de problemáticas e possibilitam explorarem e criarem relações entre:</p>"
+        }
+        secao: {
+            anterior: /123,
+            proximo: /321
+        },
+        secao: {
+            referencias:{
+                1: <p>BRASIL. Ministério da Educação. <strong>Base Nacional Comum Curricular</strong>. Brasília: MEC, 2017.</p>,
+                2: <p>BRASIL. MINISTÉRIO DA EDUCAÇÃO. Conselho Nacional da Educação. Resolução CNE/CP nº 1, de 27 de outubro de 2020. Dispõe sobre as Diretrizes Curriculares Nacionais para a Formação Continuada de Professores da Educação Básica e institui a Base Nacional Comum para a Formação Continuada de Professores da Educação Básica (BNC-Formação Continuada). Brasília, 2020.</p>
+            }
+        }
+    ],
+}
+"""
+
+Com esse JSON como sendo um espelho da estrutura de forma bem definida, creio quer será mais fácil executarmos o parse, visto que, a ideia de percorrer o conteúdo extraído será para montar o JSON, e uma vez ele montado, as coisas ficam mais fáceis.
+
+Abaixo eu escrevi um pouco de como, na minha cabeça, o sistema deve funcionar. Eu estou lançando uma nova forma de escrever e descrever sistemas funcionais. É importante que você tente entender cada ponto abaixo como uma etapa do meu pensamento. Vale ressaltar que o sistema deve se igualar ao meu fluxo de pensamento, e não o contrário. 
+
+
+1. Recebe o conteúdo extraído.
+2. Percorre o conteúdo recebido procurando uma string correspondente a {{TOPICO}}.
+3. Continua percorrendo o conteúdo em busca de uma string correspondente a {{/TOPICO}}.
+4. Pronto! O primeiro tópico foi encontrado.
+5. Armazenar em um array ou objeto o conteúdo do primeiro tópico.
+6. Continuar varrendo o conteúdo extraído buscando pelos itens 2 e 3 acima. Isso fará com que o sistema busque por cada um dos tópicos. E uma vez que encontrar, os armazenará em um array/objeto. 
+Se, após encontrar uma string correspondente a {{/TOPICO}} o sistema não encontrar uma próxima string correspondente a {{TOPICO}}, o sistema considerará como lixo o que encontrar depois da última string {{/TOPICO}}. Assim garantimos que todo o conteúdo da aula estará dentro do par de tags {{TOPICO}}/{{/TOPICO}}.
+7. Pega o primeiro item do array/objeto (topico).
+8. Procura uma string correspondente a {{SECAO}}.
+9. Continua percorrendo o conteúdo em busca de uma string correspondente a {{/SECAO}}.
+10. Pronto! A primeira seção do primeiro tópico foi encontrada.
+11. Armazena o conteúdo dela em um array/objeto Seções.
+12. Faz isso para cada uma das seções(repetição dos itens 8 e 9).
+13. Tudo que estiver fora do par {{SECAO}}/{{/SECAO}} mas mesmo assim, encapsulado no par maior {{TOPICO}}/{{/TOPICO}} é imediatamente descartado pois é lixo.
+Dessa forma, conseguimos 'cercar' todo o conteúdo que importa e descartar o que não nos serve.
+
+
+Eu sei que não terminei totalmente a lógica (através de minha descrição em pontos) mas acredito que já foi suficiente para que você entendesse o que estou propondo. Trata-se de uma ideia muito mais esperta e eficaz, pois encontra a sofisticação na simplicidade. 
+
+Antes de você botar em prática, quero que pense não apenas no que eu escrevi, mas na minha forma narrada de pensar. Extraia dela boas práticas de programação. Veja como eu penso, e como eu coloco para fora de forma simples. É assim que um código deve ser. Sem inventar moda. Preciso como uma navalha.
+
+Vamos fazer um ajuste para que os metadados não sejam perdidos. A partir de agora, tanto {{TITULO_AULA}} quanto {{TITULO_TOPICO}} também serão contidos em {{SECAO}}, vide o exemplo abaixo:
+
+"""
+{{topico}}
+{{secao}}
+{{titulo_topico}}Apresentação - aula 1{{/titulo_topico}}
+{{titulo_aula}}A Importância do Planejamento Escolar{{/titulo_aula}}
+{{/secao}}
+
+{{secao}}
+A rede estadual de ensino da Paraíba tem um compromisso importante agendado para os próximos meses e início do ano de 2025. As equipes de todas as escolas da rede devem se reunir para desenvolver o <strong>Planejamento Escolar</strong>, que irá guiar as ações escolares.
+{{/secao}}
+{{/topico}}
+"""
+
+Façamos uma definição importante. Quando eu defini, inicialmente a estrutura do JSON colocando algo como:
+"""
+ secao: {
+            paragrafo: "<p>A rede estadual de ensino da Paraíba tem um compromisso importante agendado para os próximos meses e início do ano de 2025. As equipes de todas as escolas da rede devem se reunir para desenvolver o <strong>Planejamento Escolar</strong>, que irá guiar as ações escolares.</p>",
+            paragrafo: "<p><strong>Se você ficou com um frio</strong> na barriga ao se lembrar desse compromisso, não se preocupe. Isso é um sinal de que você entende a importância desse momento para construir continuamente uma escola que atenda às necessidades de aprendizagem e desenvolvimento de cada estudante paraibano, de suas </p>",
+            paragrafo: "<p>Ao final desta aula, você deve ser capaz de:</p>",
+            lista: {
+                1: "Entender a importância do processo de reflexão crítica para o planejamento escolar.",
+                2: "Identificar no planejamento escolar o caminho para o alcance de objetivos de aprendizagem e metas educacionais.",
+                3: "Reconhecer a necessidade do equilíbrio entre a recomposição das aprendizagens e a implementação do currículo alinhado à BNCC."
+            },
+        },
+"""
+
+Eu esqueci de dizer que a mistura complexa pode sim existir, digo, coisas como:
+
+"""
+ secao: {
+            paragrafo: "<p>A rede estadual de ensino da Paraíba tem um compromisso importante agendado para os próximos meses e início do ano de 2025. As equipes de todas as escolas da rede devem se reunir para desenvolver o <strong>Planejamento Escolar</strong>, que irá guiar as ações escolares.</p>",
+            paragrafo: "<p><strong>Se você ficou com um frio</strong> na barriga ao se lembrar desse compromisso, não se preocupe. Isso é um sinal de que você entende a importância desse momento para construir continuamente uma escola que atenda às necessidades de aprendizagem e desenvolvimento de cada estudante paraibano, de suas </p>",
+            paragrafo: "<p>Ao final desta aula, você deve ser capaz de:</p>",
+            lista: {
+                1: "Entender a importância do processo de reflexão crítica para o planejamento escolar.",
+                2: "Identificar no planejamento escolar o caminho para o alcance de objetivos de aprendizagem e metas educacionais.",
+                3: "Reconhecer a necessidade do equilíbrio entre a recomposição das aprendizagens e a implementação do currículo alinhado à BNCC."
+            },
+            carrossel:[
+                1: LOREM IPSUM,
+                2: LOREM,
+                3: IPSUM
+            ],
+            paragrafo: "LOREM IPSUM AMET",
+        },
+"""
+
+são totalmente possíveis. Foi por isso que eu não defini tipos, inicialmente. Uma seção pode conter de tudo. Vamos lembrar que JSON nada mais é do que PAR:VALOR. O que vai dizer como formatar o valor é o nome do par; digo, se PAR=paragrafo, logo o VALOR deve ser abraçado por um par de tags <p>. Se PAR=carrossel, VALOR corresponderá ao HTML indicado para o template de um item do carrosel.

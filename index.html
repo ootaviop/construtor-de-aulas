@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Explorador de Arquivos</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Adicionar ícones do Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1 class="sidebar-title">Explorador de Arquivos</h1>
+      </div>
+      <div class="sidebar-content">
+        <div class="folder-header">
+          <h2 class="sidebar-subtitle">Pastas</h2>
+          <span id="refresh-folders" class="refresh-button" title="Atualizar pastas">
+            <i class="fas fa-sync-alt"></i>
+          </span>
+        </div>
+        <!-- Área para árvore de pastas -->
+        <div class="folder-tree" id="folder-tree">
+          <div class="loading-message">Carregando pastas...</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="search-bar">
+        <div class="search-wrapper">
+          <input type="text" id="search-input" placeholder="Pesquise aqui o documento..." class="search-input" />
+        </div>
+      </header>
+
+      <section class="current-path" id="current-path">
+        <i class="fas fa-folder"></i> <span id="current-folder-name">Pasta Raiz</span>
+      </section>
+
+      <section class="files-section">
+        <table class="files-table">
+          <thead>
+            <tr>
+              <th>Nome do Arquivo</th>
+              <th class="actions-column">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="file-table-body"></tbody>
+        </table>
+      </section>
+
+      <footer class="pagination" id="pagination"></footer>
+    </main>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    // Estado da aplicação
+    let allFiles = [];
+    let searchQuery = "";
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let currentFolderId = null; // ID da pasta atual
+    let currentFolderName = "Pasta Raiz"; // Nome da pasta atual
+    let folderStructure = []; // Estrutura de pastas
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      // 1) Carregar a árvore de pastas
+      await loadFolderTree();
+
+      // 2) Listar arquivos da pasta raiz
+      await loadFilesFromFolder(currentFolderId);
+
+      // 3) Configurar busca
+      const searchInput = document.getElementById("search-input");
+      searchInput.addEventListener("input", (e) => {
+        searchQuery = e.target.value.toLowerCase();
+        currentPage = 1;
+        renderFiles();
+      });
+
+      // 4) Configurar botão de atualizar pastas
+      document.getElementById("refresh-folders").addEventListener("click", async () => {
+        await loadFolderTree();
+      });
+
+      // 5) Configurar listeners de eventos de download
+      ipcRenderer.on("download-complete", (event, data) => {
+        if (data.success) {
+          alert("Arquivo baixado com sucesso!");
+        }
+      });
+
+      ipcRenderer.on("download-error", (event, data) => {
+        if (!data.success) {
+          alert("Erro ao baixar arquivo: " + data.error);
+        }
+      });
+    });
+
+    // Função para carregar a árvore de pastas
+    async function loadFolderTree() {
+      try {
+        // Primeiro, carregar as pastas do nível raiz
+        const rootFolders = await ipcRenderer.invoke('get-folders');
+        folderStructure = rootFolders;
+
+        // Para cada pasta, carregar suas subpastas
+        for (const folder of rootFolders) {
+          folder.subFolders = await ipcRenderer.invoke('get-folders', folder.id);
+        }
+
+        renderFolderTree(folderStructure);
+      } catch (error) {
+        console.error('Erro ao carregar árvore de pastas:', error);
+      }
+    }
+
+    // Função para renderizar a árvore de pastas
+    function renderFolderTree(folders, parentElement = null) {
+      const container = parentElement || document.getElementById('folder-tree');
+
+      if (!parentElement) {
+        container.innerHTML = ''; // Limpar apenas no nível raiz
+      }
+
+      folders.forEach(folder => {
+        const folderElement = document.createElement('div');
+        folderElement.className = 'folder-item';
+
+        // Criar o conteúdo da pasta
+        const folderContent = document.createElement('div');
+        folderContent.className = 'folder-content';
+        folderContent.innerHTML = `
+          <i class="fas fa-folder"></i>
+          <span>${folder.name}</span>
+        `;
+
+        // Adicionar evento de clique na pasta
+        folderContent.addEventListener('click', () => {
+          currentFolderId = folder.id;
+          currentFolderName = folder.name;
+          document.getElementById('current-folder-name').textContent = folder.name;
+          loadFilesFromFolder(folder.id);
+        });
+
+        folderElement.appendChild(folderContent);
+
+        // Se a pasta tiver subpastas, criar um container para elas
+        if (folder.subFolders && folder.subFolders.length > 0) {
+          const subFolderContainer = document.createElement('div');
+          subFolderContainer.className = 'subfolder-container';
+          folderElement.appendChild(subFolderContainer);
+          renderFolderTree(folder.subFolders, subFolderContainer);
+        }
+
+        container.appendChild(folderElement);
+      });
+    }
+
+    // Função para carregar arquivos de uma pasta
+    async function loadFilesFromFolder(folderId) {
+      try {
+        // Carregar tanto arquivos quanto pastas
+        const [files, folders] = await Promise.all([
+          ipcRenderer.invoke('get-files', folderId),
+          ipcRenderer.invoke('get-folders', folderId)
+        ]);
+
+        // Combinar arquivos e pastas em uma única lista
+        allFiles = [
+          ...folders.map(folder => ({
+            ...folder,
+            mimeType: 'application/vnd.google-apps.folder',
+            isFolder: true
+          })),
+          ...files
+        ];
+
+        renderFiles();
+      } catch (error) {
+        console.error('Erro ao carregar arquivos:', error);
+      }
+    }
+
+    // Função para renderizar a lista de arquivos
+    function renderFiles() {
+      const tableBody = document.getElementById('file-table-body');
+      tableBody.innerHTML = '';
+
+      // Filtrar arquivos baseado na busca
+      const filteredFiles = allFiles.filter(file =>
+        file.name.toLowerCase().includes(searchQuery)
+      );
+
+      // Calcular paginação
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedFiles = filteredFiles.slice(startIndex, endIndex);
+
+      // Renderizar arquivos
+      paginatedFiles.forEach(file => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <i class="fas ${getFileIcon(file.mimeType)}"></i>
+            ${file.name}
+          </td>
+          <td class="actions-column">
+            ${file.isFolder ? '' : `
+              <button class="action-button" onclick="downloadFile('${file.id}')" title="Baixar arquivo">
+                <i class="fas fa-download"></i>
+              </button>
+            `}
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      // Renderizar paginação
+      renderPagination(filteredFiles.length);
+    }
+
+    // Função para renderizar a paginação
+    function renderPagination(totalItems) {
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement('button');
+        button.textContent = i;
+        button.className = i === currentPage ? 'active' : '';
+        button.addEventListener('click', () => {
+          currentPage = i;
+          renderFiles();
+        });
+        pagination.appendChild(button);
+      }
+    }
+
+    // Função para obter o ícone correto baseado no tipo de arquivo
+    function getFileIcon(mimeType) {
+      if (mimeType.includes('folder')) return 'fa-folder';
+      if (mimeType.includes('document')) return 'fa-file-word';
+      if (mimeType.includes('pdf')) return 'fa-file-pdf';
+      if (mimeType.includes('image')) return 'fa-file-image';
+      if (mimeType.includes('audio')) return 'fa-file-audio';
+      if (mimeType.includes('video')) return 'fa-file-video';
+      return 'fa-file';
+    }
+
+    // Função para download de arquivo
+    function downloadFile(fileId) {
+      ipcRenderer.send('download-resource', fileId);
+    }
+  </script>
+</body>
+
+</html>
