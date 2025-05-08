@@ -1,26 +1,87 @@
 // services/html/template-manager.js
 
 /**
- * Escapa texto para uso seguro em HTML.
+ * escapeHtml(str)
+ * ----------------
+ * Recebe um valor qualquer (string, número, objeto etc.) e devolve uma string
+ * segura para inserção em HTML, substituindo caracteres especiais pelas suas
+ * entidades correspondentes, prevenindo injeção de código (XSS) e garantindo
+ * que o texto seja exibido literalmente no navegador.
+ *
+ * Exemplo:
+ *   escapeHtml('<Teste & "seguro">')
+ *   => '&lt;Teste &amp; &quot;seguro&quot;&gt;'
  */
 function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+  // 1) Converte qualquer valor em string (garante que número ou objeto não quebre)
+  return (
+    String(str)
+      // 2) Substitui '&' antes de tudo, para não escapar entidades já criadas
+      .replace(/&/g, "&amp;")
+      // 3) Substitui '<' para impedir abertura de tags HTML
+      .replace(/</g, "&lt;")
+      // 4) Substitui '>' para impedir fechamento de tags HTML
+      .replace(/>/g, "&gt;")
+      // 5) Substitui '"' para uso seguro dentro de atributos entre aspas duplas
+      .replace(/"/g, "&quot;")
+      // 6) Substitui '\'' para uso seguro dentro de atributos entre aspas simples
+      .replace(/'/g, "&#39;")
+  );
 }
 
 /**
- * Escapa URI para uso em atributos data-link.
+ * escapeUri(uri)
+ * ---------------
+ * Recebe uma string que representa uma URI ou caminho de recurso (por exemplo,
+ * um valor de link de navegação) e a transforma numa forma “segura” para uso
+ * em atributos HTML ou redirecionamentos, escapando caracteres reservados
+ * segundo as regras de URI. Isso evita que espaços, acentos ou símbolos
+ * especiais quebrem o link ou causem comportamento inesperado.
+ *
+ * Exemplo:
+ *   escapeUri('/pasta com espaços/minha página.html?x=1&y=2')
+ *   => '/pasta%20com%20espa%C3%A7os/minha%20p%C3%A1gina.html?x=1&y=2'
+ *
+ * Passos internos:
+ *  1. Trata qualquer valor não-string como string: String(uri)
+ *  2. Usa encodeURI() para escapar automaticamente:
+ *     - espaços (' ') → '%20'
+ *     - acentos e caracteres Unicode → suas formas percent-encoded
+ *     - preserva caracteres que são válidos em URIs (/:?&=#)
+ *  3. Retorna a URI escapada, pronta para uso em href, src ou redirecionamentos.
  */
 function escapeUri(uri) {
-  return encodeURI(uri);
+  // 1) Garante que o valor seja tratado como string
+  const str = String(uri);
+  // 2) Usa o encoder padrão de URIs do JavaScript
+  return encodeURI(str);
 }
 
 /**
- * Gera ID aleatório alfanumérico de 4 dígitos.
+ * randomId(len = 4)
+ * -----------------
+ * Gera um identificador aleatório composto por caracteres alfanuméricos,
+ * útil para atribuir IDs únicos a componentes (como modais ou carrosséis)
+ * sem colisão imediata.
+ *
+ * Parâmetros:
+ *   len (number) – número de caracteres desejados no ID; padrão = 4.
+ *
+ * Retorno:
+ *   Uma string de comprimento `len`, formada por letras maiúsculas,
+ *   minúsculas e dígitos.
+ *
+ * Exemplo de uso:
+ *   const id1 = randomId();      // p. ex. 'A1b2'
+ *   const id2 = randomId(6);     // p. ex. 'xY3Zd9'
+ *
+ * Passos internos:
+ *  1. Define um alfabeto de caracteres válidos (`chars`).
+ *  2. Inicializa `id` como string vazia.
+ *  3. Em um loop de 0 até len-1:
+ *     a) Gera um índice aleatório entre 0 e chars.length-1.
+ *     b) Concatena o caractere correspondente em `id`.
+ *  4. Retorna a string preenchida.
  */
 function randomId(len = 4) {
   const chars =
@@ -33,70 +94,205 @@ function randomId(len = 4) {
 }
 
 /**
-+  * renderNodes
-+  * -----------
-+  * Recebe um array de nós AST e, para cada um, invoca o renderer
-+  * específico se existir, ou usa fallback para parágrafos e listas.
-+  */
+ * renderNodes(nodes)
+ * ------------------
+ * Recebe um valor (string ou array de nós AST) e produz a string HTML
+ * correspondente, invocando renderers registrados ou aplicando fallbacks
+ * para parágrafos, listas e tags desconhecidas.
+ *
+ * Parâmetros:
+ *   nodes – pode ser:
+ *     • string: HTML puro, retornado sem alterações
+ *     • array: lista de objetos AST, onde cada objeto tem:
+ *         - name (string): identifica o tipo de nó/componente
+ *         - content (string|array): conteúdo ou filhos aninhados
+ *         - type (opcional, string): usado para listas ('numerada' vs 'nao-numerada')
+ *         - slides (opcional, array): usado para carrossel
+ *
+ * Retorna:
+ *   Uma única string contendo o HTML concatenado de todos os nós.
+ *
+ * Fluxo de execução:
+ *  1) Se nodes for string simples, devolve diretamente (sem alteração).
+ *  2) Se nodes não for um array, retorna string vazia (nada a renderizar).
+ *  3) Se nodes for array, itera sobre cada item:
+ *     a) Se existir um renderer customizado para item.name em registry.renderers,
+ *        chama registry.render(item.name, item) e retorna o HTML gerado por esse renderer.
+ *     b) Caso contrário, aplica fallbacks:
+ *        - 'paragrafo':  `<p>${item.content}</p>`
+ *        - 'lista': escolhe 'ol' ou 'ul' conforme item.type,
+ *                   mapeia cada li em `<li>${li.content}</li>`,
+ *                   e envolve tudo em `<${tag} class="lista-check">…</${tag}>`.
+ *     c) Se item.name não for nem 'paragrafo' nem 'lista':
+ *        - chame renderNodes(item.content) recursivamente para construir inner
+ *        - retorne:
+ *          ```
+ *          <div class="desconhecida">
+ *            <h1>{{${item.name}}}</h1>
+ *            ${inner}
+ *          </div>
+ *          ```
+ *  4) Finalmente, concatena (`.join('')`) todos os fragmentos HTML num único string.
+ *
+ * Exemplo ilustrativo:
+ *    AST de exemplo contendo parágrafo, lista e nó desconhecido 'foo'
+ *   const ast = [
+ *     { name: 'paragrafo', content: '<strong>Olá</strong>' },
+ *     {
+ *       name: 'lista',
+ *       type: 'numerada',
+ *       content: [
+ *         { name: 'item', content: 'Primeiro item' },
+ *         { name: 'item', content: 'Segundo item' }
+ *       ]
+ *     },
+ *     {
+ *       name: 'foo',
+ *       content: [
+ *         { name: 'paragrafo', content: 'Dentro de foo' }
+ *       ]
+ *     }
+ *   ];
+ *   const html = renderNodes(ast);
+ *    html resultante:
+ *    "<p><strong>Olá</strong></p>" +
+ *    "<ol class=\"lista-check\"><li>Primeiro item</li><li>Segundo item</li></ol>" +
+ *    "<div class=\"desconhecida\"><h1>{{foo}}</h1><p>Dentro de foo</p></div>"
+ */
 function renderNodes(nodes) {
-  // 1) Se for string simples, devolve direto
+  // 1) Se recebemos uma string pura, devolvemos sem modificação:
+  //    Isso permite, por exemplo, que alguns renderers retornem HTML já pronto
+  //    e o renderNodes apenas o passe adiante.
   if (typeof nodes === "string") {
     return nodes;
   }
 
-  // 2) Se não for um array, nada a renderizar
+  // 2) Se não for um array (ex: undefined, null, objeto simples), retornamos nada:
+  //    Garante que não tentaremos fazer .map em algo inválido, evitando erros.
   if (!Array.isArray(nodes)) {
     return "";
   }
 
-  // 3) Agora sim, itere com segurança
-  return nodes
-    .map((item) => {
-      // componente customizado ou oficial
-      if (registry.renderers[item.name]) {
-        return registry.render(item.name, item);
-      }
+  // 3) Agora que temos um array legítimo, iteramos item a item:
+  return (
+    nodes
+      .map((item) => {
+        // 3.1) COMPONENTE CUSTOMIZADO
+        // Se existir um renderer registrado para este item.name, delegamos a ele:
+        // registry.renderers[item.name] é um mapa de funções definidas em template-manager.js.
+        if (registry.renderers[item.name]) {
+          // Exemplo: item.name === 'modal', 'carrossel', 'citacao', etc.
+          // Chamamos registry.render(item.name, item) e esperamos HTML completo.
+          return registry.render(item.name, item);
+        }
 
-      // fallback genérico para parágrafos
-      if (item.name === "paragrafo") {
-        return `<p>${item.content}</p>`;
-      }
+        // 3.2) Fallback para PARÁGRAFO
+        // Quando o nó AST indica name === 'paragrafo', geramos <p>content</p>.
+        // content já deve vir escapado pelo parser ou pelo escapeHtml chamado antes.
+        if (item.name === "paragrafo") {
+          return `<p>${item.content}</p>`;
+        }
 
-      // fallback genérico para listas
-      if (item.name === "lista") {
-        const tag = item.type === "numerada" ? "ol" : "ul";
-        const lis = item.content.map((li) => `<li>${li.content}</li>`).join("");
-        return `<${tag} class="lista-check">${lis}</${tag}>`;
-      }
+        // 3.3) Fallback para LISTA
+        // item.type pode ser 'numerada' (ol) ou 'nao-numerada' (ul).
+        if (item.name === "lista") {
+          // Monta cada <li> a partir dos itens filhos
+          const tag = item.type === "numerada" ? "ol" : "ul";
+          const lis = item.content
+            .map((li) => `<li>${li.content}</li>`)
+            .join("");
+          return `<${tag} class="lista-check">${lis}</${tag}>`;
+        }
 
-      // fallback genérico para outras coisas
-      const inner = item.content ? renderNodes(item.content) : "";
-      return `
+        // 3.4) Fallback genérico para qualquer outra tag
+        //     - renderNodes recursivamente para aninhamento de conteúdo
+        const inner = item.content ? renderNodes(item.content) : "";
+        return `
         <div class="desconhecida">
           <h1>{{${item.name}}}</h1>
           ${inner}
         </div>`;
-    })
-    .join("");
+      })
+      // 4) Junta tudo num único HTML
+      .join("")
+  );
 }
 
 /**
- * Registry de renderers.
+ * registry
+ * --------
+ * Objeto responsável por armazenar e gerenciar funções de renderização
+ * de cada tipo de nó AST. Permite registrar novos renderers, buscar um
+ * renderer existente e invocá-lo para gerar o HTML correspondente.
  */
 const registry = {
+  /**
+   * renderers
+   * ---------
+   * Mapa onde a chave é o nome do componente (string) e o valor é a
+   * função de renderização (fn) registrada para aquele componente.
+   * Inicialmente vazio; popula-se via registry.register().
+   */
   renderers: {},
+  /**
+   * register(key, fn)
+   * -----------------
+   * Registra uma função de renderização para um componente específico.
+   *
+   * @param {string} key
+   *   Nome do componente (por exemplo, 'modal', 'carrossel', 'paragrafo').
+   * @param {Function} fn
+   *   Função que será chamada mais tarde para produzir o HTML do componente.
+   *
+   * Uso:
+   *   registry.register('modal', node => '<div>...</div>');
+   */
 
   register(key, fn) {
+    // Armazena a função fn sob a chave key no mapa de renderers
     this.renderers[key] = fn;
   },
 
+  /**
+   * get(key)
+   * ---------
+   * Retorna a função de renderização registrada para o componente key.
+   *
+   * @param {string} key
+   *   Nome do componente cujo renderer desejamos recuperar.
+   * @returns {Function}
+   *   A função de renderização previamente registrada.
+   * @throws {Error}
+   *   Se não existir renderer para a chave fornecida, lança um erro.
+   *
+   * Exemplo:
+   *   const renderModal = registry.get('modal');
+   */
   get(key) {
     const fn = this.renderers[key];
     if (!fn) throw new Error(`Renderer não encontrado para key '${key}'`);
+    // Se fn for undefined, informa que o renderer não foi encontrado
     return fn;
   },
 
+  /**
+   * render(key, node)
+   * -----------------
+   * Atalho para buscar e invocar o renderer de um componente em um único passo.
+   *
+   * @param {string} key
+   *   Nome do componente a ser renderizado.
+   * @param {Object} node
+   *   Nó AST com as propriedades que o renderer espera (por exemplo, content,
+   *   slides, type etc.).
+   * @returns {string}
+   *   HTML gerado pela função de renderização.
+   *
+   * Exemplo:
+   *   const html = registry.render('paragrafo', { name:'paragrafo', content:'Olá' });
+   */
   render(key, node) {
+    // this.get(key) recupera o fn e, em seguida, invoca fn(node)
     return this.get(key)(node);
   },
 };
@@ -410,25 +606,54 @@ registry.register(
 );
 
 /**
- * Orquestra a montagem completa da página.
+ * renderTopic(node)
+ * -----------------
+ * Recebe um objeto AST de um único tópico (construído por parseTopicAst)
+ * e gera a string HTML completa, incluindo:
+ *   1. Head (metadados e título da página)
+ *   2. Seções em ordem: cabeçalho, corpo(s) e rodapé
+ *   3. Scripts finais de carregamento
+ *
+ * @param {Object} node
+ *   O AST do tópico, onde cada chave é um índice de seção ('1','2',...)
+ *   e cada valor é um objeto com:
+ *     - name: 'secao'
+ *     - type: 'cabecalho' | 'corpo' | 'rodape'
+ *     - título_topico, título_aula (na seção 1)
+ *     - content (array de nós AST) em seções de corpo
+ *     - anterior, proximo (strings) em seção de rodapé
+ *
+ * @returns {string} html
+ *   O HTML completo do tópico, pronto para exibição ou escrita em arquivo.
  */
 function renderTopic(node) {
-  // Head + título
+  // 1) Monta o <head> e insere o título da página
+  //    node["1"] sempre é a seção de cabeçalho
   const header = node["1"];
+  //    Combina “Título do Tópico – Título da Aula” para o <title>
   const pageTitle = `${header.titulo_topico} - ${header.titulo_aula}`;
+  //    Chama o renderer 'head' (template contendo <!--PAGE_TITLE-->)
+  //    e substitui o placeholder pelo título escapado
   let html = registry
     .render("head")
     .replace("<!--PAGE_TITLE-->", escapeHtml(pageTitle));
 
-  // Seções: cabeçalho, corpo, rodapé
+  // 2) Renderiza cada seção na ordem correta
+  //    - Pega todas as chaves do objeto AST (strings '1','2',...)
+  //    - Converte para número e ordena crescente
   const keys = Object.keys(node).sort((a, b) => Number(a) - Number(b));
+  //    Para cada chave, decide se é cabeçalho, corpo ou rodapé
   keys.forEach((k, idx) => {
     const sec = node[k];
     if (idx === 0) {
+      // Seção 1 = cabeçalho
       html += registry.render("secao:cabecalho", sec);
     } else if (idx === keys.length - 1) {
+      // Última seção = rodapé
       html += registry.render("secao:rodape", sec);
     } else {
+      // Seções intermediárias = corpo
+      // Passa um objeto com content (AST de nós) e índice (para classes/ids)
       html += registry.render("secao:corpo", {
         content: sec.content,
         index: idx + 1,
@@ -436,8 +661,10 @@ function renderTopic(node) {
     }
   });
 
-  // Scripts finais
+  // 3) Adiciona o bloco de <script> e fechamentos finais
   html += registry.render("scripts");
+
+  // 4) Retorna o HTML concatenado de head + seções + scripts
   return html;
 }
 
