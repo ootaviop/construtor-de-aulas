@@ -118,7 +118,7 @@ function extractSections(topicHtml) {
 function parseSectionNodes(secHtml) {
   /**
    * Se secHtml começar com vários <p>, <ul>, etc., sem um único container pai,
-   * o Cheerio às vezes se confunde sobre quais nós são irmãos ou filhos.
+   * o Cheerio às vezes se confunde sobre quais nós são irmãos ou filhos
    * Ao colocar <root>, garantimos um elemento pai único, de onde podemos extrair
    * ordenadamente todos os filhos diretos.
    *
