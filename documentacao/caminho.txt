@@ -1,0 +1,14 @@
+START
+
+-> (index.js) function processDocument(fileContent)
+-> (index.js) const { htmls, titles } = processarAula(fileContent)
+-> (processor-service.js) function processarAula(htmlInput)
+    -> function parseDocument(htmlInput)
+        -> function extractTopics(htmlInput)
+        -> function parseTopicAst(topicHtml)
+            -> function extractSections(topicHtml)
+            -> function parseSectionNodes(secHtml)
+                -> function parseSectionNodes(secHtml) {#recursão#}
+    -> (template-manager.js) function renderTopic(node)
+
+END

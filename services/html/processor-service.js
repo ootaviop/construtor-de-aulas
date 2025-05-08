@@ -1,5 +1,4 @@
-//adição de comentários para o código
-// adição de mais uma linha de comentários
+// Arquivo: processor-service.js
 
 const fs = require("fs-extra");
 const path = require("path");
