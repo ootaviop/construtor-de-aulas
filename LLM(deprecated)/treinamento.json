@@ -1,5 +1,0 @@
-{
-  "instruction": "Converta as marcações abaixo em HTML segundo a identidade padrão.",
-  "input": "[TITULO_TOPICO]Gestão educacional[/TITULO_TOPICO]",
-  "output": "<div class='titulo'>Aula 01</div><p>Esse é o conteúdo.</p>"
-}

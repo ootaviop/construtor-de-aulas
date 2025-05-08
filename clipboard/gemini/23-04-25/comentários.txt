@@ -1,1 +1,0 @@
--> Acho que podemos deixar a [TOOLTIP] de lado por enquanto, isto é, não é preciso que o código do Parse lide com ela. Se estiver no documento, o código pode simplesmente ignorá-la (Apenas comentar o conteúdo dela);
