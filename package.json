@@ -20,6 +20,7 @@
   "dependencies": {
     "archiver": "^6.0.1",
     "cheerio": "^1.0.0",
+    "construtor-de-aulas": "file:",
     "fs-extra": "^11.2.0",
     "googleapis": "^131.0.0",
     "mammoth": "^1.6.0",
