@@ -346,7 +346,7 @@ registry.register("secao:cabecalho", (node) => {
 registry.register("video", (node) => {
   const bodyHtml = renderNodes(node.content);
   return `
-      <div class="embed-responsive embed-responsive-16by9" style="border: 2px solid var(--cor-primaria);">
+      <div class="embed-responsive embed-responsive-16by9" style="border: 2px solid var(--cor-primaria);">]
         <div></div>
       </div>
         `;

@@ -1,0 +1,26 @@
+lista de tags conhecidas:
+
+- {{topico}}
+- {{secao}}
+- {{titulo_aula}}
+- {{titulo_topico}}
+- {{carrossel}}
+- {{destaque}}
+- {{citacao}}
+- {{modal}}
+- {{anterior}}
+- {{proximo}}
+- {{referencias}}
+
+- {{link}} (a adicionar o template no template-manager.js)
+
+
+lista de tags desconhecidas:
+
+- {{video}}
+- {{podcast}}
+- {{infografico}}
+- {{imagem}}
+- {{sanfona}}
+- {{flip-card}}
+- {{mural}}
