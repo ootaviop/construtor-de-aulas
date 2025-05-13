@@ -140,30 +140,30 @@ function parseSectionNodes(secHtml) {
     console.log(`text: ${text}`); // Debug
 
     // ─── Vídeo ──────────────────────────────────────────────────────────────
-    if (tag === "p" && text === "{{video}}") {
-      // 1) coleta TODO o HTML interno até {{/video}} como uma string
-      let innerHtmlStr = "";
-      i++;
-      while (i < children.length) {
-        const sib = children[i];
-        const sTag = sib.tagName && sib.tagName.toLowerCase();
-        const sText = $(sib).text().trim().toLowerCase();
-        if (sTag === "p" && sText === "{{/video}}") break;
+    // if (tag === "p" && text === "{{video}}") {
+    //   // 1) coleta TODO o HTML interno até {{/video}} como uma string
+    //   let innerHtmlStr = "";
+    //   i++;
+    //   while (i < children.length) {
+    //     const sib = children[i];
+    //     const sTag = sib.tagName && sib.tagName.toLowerCase();
+    //     const sText = $(sib).text().trim().toLowerCase();
+    //     if (sTag === "p" && sText === "{{/video}}") break;
 
-        // acumula o HTML bruto deste nó (para permitir aninhamentos)
-        innerHtmlStr += $.html(sib);
-        i++;
-      }
+    //     // acumula o HTML bruto deste nó (para permitir aninhamentos)
+    //     innerHtmlStr += $.html(sib);
+    //     i++;
+    //   }
 
-      // 2) chama recursivamente parseSectionNodes no fragmento coletado
-      const content = parseSectionNodes(innerHtmlStr);
+    //   // 2) chama recursivamente parseSectionNodes no fragmento coletado
+    //   const content = parseSectionNodes(innerHtmlStr);
 
-      // 3) insere o nó video com seu conteúdo recursivo
-      nodes.push({ name: "video", content });
+    //   // 3) insere o nó video com seu conteúdo recursivo
+    //   nodes.push({ name: "video", content });
 
-      // 4) pula para próxima iteração, evitando fallback de parágrafo
-      continue;
-    }
+    //   // 4) pula para próxima iteração, evitando fallback de parágrafo
+    //   continue;
+    // }
 
     // ─── Referências ──────────────────────────────────────────────────────────────
     if (tag === "p" && text === "{{referencias}}") {
@@ -295,28 +295,132 @@ function parseSectionNodes(secHtml) {
       continue;
     }
 
-    // ── DETECTOR GENÉRICO DE TAG DESCONHECIDA ────────────────────────────────
-    // Se viermos um <p>{{qualquerCoisa}}</p> que NÃO seja modal ou carrossel,
-    // criamos um nó AST { name: 'qualquerCoisa', content: [...] }.
-    const openMatch = text.match(/^\{\{\s*([a-zA-Z0-9_]+)\s*\}\}$/);
-    if (tag === "p" && openMatch) {
-      const name = openMatch[1]; // e.g. 'citacao'
-      const innerHtml = [];
+    // ─── Link ──────────────────────────────────────────────────────────────
+    if (tag === "p" && text.includes("{{link")) {
+      const htmlRaw = $(el).html();
+
+      // 1) Detectar INLINE completo no mesmo <p> (qualquer linha, mesmo com quebras)
+      const inlineMatch = htmlRaw.match(
+        /{{\s*link(?:\s+url=['"]?(.*?)['"]?)?\s*}}([\s\S]*?){{\s*\/link\s*}}/i
+      );
+      if (inlineMatch) {
+        const urlRaw = inlineMatch[1] ? inlineMatch[1].trim() : "";
+        const url =
+          urlRaw
+            .replace(/<a[^>]+href=["']?([^"'>\s]+)["']?[^>]*>.*?<\/a>/i, "$1")
+            .trim() || urlRaw;
+        const innerContent = inlineMatch[2].trim();
+
+        nodes.push({
+          name: "link",
+          url,
+          innerContent,
+        });
+        continue;
+      }
+
+      // 2) Detectar ABERTURA + conteúdo no mesmo <p>, mas FECHAMENTO em outro
+      const openingMatch = htmlRaw.match(
+        /{{\s*link(?:\s+url=['"]?(.*?)['"]?)?\s*}}([\s\S]*)/i
+      );
+      if (openingMatch) {
+        const urlRaw = openingMatch[1] ? openingMatch[1].trim() : "";
+        const url =
+          urlRaw
+            .replace(/<a[^>]+href=["']?([^"'>\s]+)["']?[^>]*>.*?<\/a>/i, "$1")
+            .trim() || urlRaw;
+        let innerContent = openingMatch[2].trim();
+
+        i++;
+        while (i < children.length) {
+          const sib = children[i];
+          const sibHtml = $.html(sib);
+          const sText = $(sib).text().trim().toLowerCase();
+
+          if (sibHtml.includes("{{/link}}") || sText === "{{/link}}") {
+            innerContent += sibHtml.replace(/{{\s*\/link\s*}}/i, "");
+            break;
+          }
+
+          innerContent += sibHtml;
+          i++;
+        }
+
+        nodes.push({
+          name: "link",
+          url,
+          innerContent,
+        });
+        continue;
+      }
+
+      // 3) Tradicional ({{link}} em <p>, conteúdo em outros <p>, {{/link}} em outro <p>)
+      const urlMatch = text.match(/{{\s*link(?:\s+url=['"]?(.*?)['"]?)?\s*}}/i);
+      const urlRaw = urlMatch && urlMatch[1] ? urlMatch[1].trim() : "";
+      const url =
+        urlRaw
+          .replace(/<a[^>]+href=["']?([^"'>\s]+)["']?[^>]*>.*?<\/a>/i, "$1")
+          .trim() || urlRaw;
+
+      let innerContent = "";
       i++;
-      // acumula tudo até encontrar {{/name}}
       while (i < children.length) {
         const sib = children[i];
+        const sibHtml = $.html(sib);
+        const sText = $(sib).text().trim().toLowerCase();
+        if (sibHtml.includes("{{/link}}") || sText === "{{/link}}") break;
+
+        innerContent += sibHtml;
+        i++;
+      }
+
+      nodes.push({
+        name: "link",
+        url,
+        innerContent,
+      });
+      continue;
+    }
+
+    // ── DETECTOR GENÉRICO DE TAG DESCONHECIDA ────────────────────────────────
+    const htmlRaw = $(el).html();
+
+    // 1) Verificar inline completo dentro do mesmo <p>
+    const inlineMatch = htmlRaw.match(
+      /{{\s*([a-zA-Z0-9_]+)\s*}}([\s\S]*?){{\s*\/\1\s*}}/i
+    );
+    if (inlineMatch) {
+      const name = inlineMatch[1];
+      const innerContent = inlineMatch[2].trim();
+      nodes.push({
+        name: "desconhecida",
+        tagOriginal: name,
+        content: innerContent,
+      });
+      continue;
+    }
+
+    // 2) Se não for inline, tenta modo clássico (abertura em <p>, conteúdo em outros <p>, fechamento em outro <p>)
+    const openMatch = text.match(/^\{\{\s*([a-zA-Z0-9_]+)\s*\}\}$/);
+    if (tag === "p" && openMatch) {
+      const name = openMatch[1];
+      let innerContent = "";
+      i++;
+      while (i < children.length) {
+        const sib = children[i];
+        const sibHtml = $.html(sib);
         const sText = $(sib).text().trim();
         if (sib.tagName?.toLowerCase() === "p" && sText === `{{/${name}}}`) {
           break;
         }
-        // mantém o HTML bruto para parsing recursivo
-        innerHtml.push($.html(sib));
+        innerContent += sibHtml;
         i++;
       }
-      // chama recursivamente para gerar AST interno
-      const content = parseSectionNodes(innerHtml.join(""));
-      nodes.push({ name, content });
+      nodes.push({
+        name: "desconhecida",
+        tagOriginal: name,
+        content: innerContent,
+      });
       continue;
     }
 
@@ -461,7 +565,7 @@ function parseTopicAst(topicHtml) {
       console.warn(`Ignorando sessão ${idx + 1} por erro:`, err.message);
     }
   });
-  //console.log(`AST: ${JSON.stringify(ast, null, 2)}`); // Debug
+  console.log(`AST: ${JSON.stringify(ast, null, 2)}`); // Debug
   // 4) Retorna o objeto AST completo para este tópico
   return ast;
 }
